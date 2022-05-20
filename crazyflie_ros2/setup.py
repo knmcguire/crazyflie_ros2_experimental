@@ -15,11 +15,12 @@ setup(
     zip_safe=True,
     maintainer='knmcguire',
     maintainer_email='kimberly@bitcraze.io',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='Publishing Crazyflie Logging Variable',
+    license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+                'talker = crazyflie_ros2.crazyflie_publisher:main',
         ],
     },
 )
