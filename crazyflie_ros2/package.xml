@@ -7,6 +7,7 @@
   <maintainer email="kimberly@bitcraze.io">knmcguire</maintainer>
   <license>MIT</license>
 
+  <exec_depend>python3-cflib</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
 
