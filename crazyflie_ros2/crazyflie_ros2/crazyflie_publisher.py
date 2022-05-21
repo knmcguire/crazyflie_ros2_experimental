@@ -4,6 +4,8 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose
 import tf_transformations
+from tf2_ros import TransformBroadcaster
+from geometry_msgs.msg import TransformStamped
 
 import cflib.crtp  # noqa
 from cflib.crazyflie import Crazyflie
@@ -18,6 +20,7 @@ class CrazyfliePublisher(Node):
     def __init__(self, link_uri):
         super().__init__('crazyflie_publisher')
         self.publisher_ = self.create_publisher(Pose, 'pose', 10)
+        self.tfbr = TransformBroadcaster(self)
 
         self._cf = Crazyflie(rw_cache='./cache')
         self._cf.connected.add_callback(self._connected)
@@ -70,18 +73,32 @@ class CrazyfliePublisher(Node):
             print(f'{name}: {value:3.3f} ', end='')
         print()
         msg = Pose()
-        msg.position.x = data.get('stateEstimate.x')
-        msg.position.y = data.get('stateEstimate.y')
-        msg.position.z = data.get('stateEstimate.z')
+
+        x = data.get('stateEstimate.x')
+        y = data.get('stateEstimate.y')
+        z = data.get('stateEstimate.z')
         roll = data.get('stabilizer.roll')
         pitch = -1*data.get('stabilizer.pitch')
         yaw = data.get('stabilizer.yaw')
+        msg.position.x = x
+        msg.position.y = y
+        msg.position.z = z
         q = tf_transformations.quaternion_from_euler(roll, pitch, yaw)
         msg.orientation.x = q[0]
         msg.orientation.y = q[1]
         msg.orientation.z = q[2]
         msg.orientation.w = q[3]
         self.publisher_.publish(msg)
+
+        t = TransformStamped()
+        t.transform.translation.x = x
+        t.transform.translation.x = y
+        t.transform.translation.x = z
+        t.transform.rotation.x = q[0]
+        t.transform.rotation.y = q[1]
+        t.transform.rotation.z = q[2]
+        t.transform.rotation.w = q[3]
+        self.tfbr.sendTransform(t)
 
 def main(args=None):
 
