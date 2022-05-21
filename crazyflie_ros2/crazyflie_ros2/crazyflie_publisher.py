@@ -3,6 +3,8 @@ from rclpy.node import Node
 
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose
+import tf_transformations
+
 import cflib.crtp  # noqa
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
@@ -15,10 +17,7 @@ class CrazyfliePublisher(Node):
 
     def __init__(self, link_uri):
         super().__init__('crazyflie_publisher')
-        self.publisher_ = self.create_publisher(Pose, 'Pose', 10)
-        timer_period = 0.5  # seconds
-        #self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.i = 0
+        self.publisher_ = self.create_publisher(Pose, 'pose', 10)
 
         self._cf = Crazyflie(rw_cache='./cache')
         self._cf.connected.add_callback(self._connected)
@@ -26,14 +25,6 @@ class CrazyfliePublisher(Node):
         self._cf.connection_failed.add_callback(self._connection_failed)
         self._cf.connection_lost.add_callback(self._connection_lost)
         self._cf.open_link(link_uri)
-
-    
-    def timer_callback(self):
-        msg = String()
-        msg.data = 'Hello World: %d' % self.i
-        self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.data)
-        self.i += 1
 
     def _connected(self, link_uri):
         print('connected')
@@ -82,6 +73,14 @@ class CrazyfliePublisher(Node):
         msg.position.x = data.get('stateEstimate.x')
         msg.position.y = data.get('stateEstimate.y')
         msg.position.z = data.get('stateEstimate.z')
+        roll = data.get('stabilizer.roll')
+        pitch = -1*data.get('stabilizer.pitch')
+        yaw = data.get('stabilizer.yaw')
+        q = tf_transformations.quaternion_from_euler(roll, pitch, yaw)
+        msg.orientation.x = q[0]
+        msg.orientation.y = q[1]
+        msg.orientation.z = q[2]
+        msg.orientation.w = q[3]
         self.publisher_.publish(msg)
 
 def main(args=None):
