@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 
 from std_msgs.msg import String
+from geometry_msgs.msg import Pose
 import cflib.crtp  # noqa
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
@@ -12,11 +13,9 @@ uri = uri_helper.uri_from_env(default='radio://0/40/2M/E7E7E7E703')
 
 class CrazyfliePublisher(Node):
 
-
-
     def __init__(self, link_uri):
         super().__init__('crazyflie_publisher')
-        self.publisher_ = self.create_publisher(String, 'topic', 10)
+        self.publisher_ = self.create_publisher(Pose, 'Pose', 10)
         timer_period = 0.5  # seconds
         #self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0
@@ -76,10 +75,14 @@ class CrazyfliePublisher(Node):
 
     def _stab_log_data(self, timestamp, data, logconf):
         """Callback from a the log API when data arrives"""
-        print(f'[{timestamp}][{logconf.name}]: ', end='')
         for name, value in data.items():
             print(f'{name}: {value:3.3f} ', end='')
         print()
+        msg = Pose()
+        msg.position.x = data.get('stateEstimate.x')
+        msg.position.y = data.get('stateEstimate.y')
+        msg.position.z = data.get('stateEstimate.z')
+        self.publisher_.publish(msg)
 
 def main(args=None):
 
