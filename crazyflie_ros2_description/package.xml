@@ -3,14 +3,9 @@
 <package format="3">
   <name>crazyflie_ros2_description</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Includes description and rviz files for the Crazyflie</description>
   <maintainer email="kimberly@bitcraze.io">knmcguire</maintainer>
-  <license>TODO: License declaration</license>
-
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
-  <test_depend>python3-pytest</test_depend>
+  <license>MIT</license>
 
   <export>
     <build_type>ament_python</build_type>
