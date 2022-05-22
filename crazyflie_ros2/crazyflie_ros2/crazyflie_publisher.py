@@ -24,7 +24,8 @@ class CrazyfliePublisher(Node):
     def __init__(self, link_uri):
         super().__init__('crazyflie_publisher')
         self.publisher_ = self.create_publisher(Pose, 'pose', 10)
-        self.tfbr = TransformBroadcaster(self)
+        self.tfbr_base = TransformBroadcaster(self)
+        self.tfbr_cf = TransformBroadcaster(self)
 
         self._cf = Crazyflie(rw_cache='./cache')
         self._cf.connected.add_callback(self._connected)
@@ -94,18 +95,36 @@ class CrazyfliePublisher(Node):
         msg.orientation.w = q[3]
         self.publisher_.publish(msg)
 
-        t = TransformStamped()
-        t.header.stamp = self.get_clock().now().to_msg()
-        t.header.frame_id = 'map'
-        t.child_frame_id = 'crazyflie'
-        t.transform.translation.x = x
-        t.transform.translation.y = y
-        t.transform.translation.z = z
-        t.transform.rotation.x = q[0]
-        t.transform.rotation.y = q[1]
-        t.transform.rotation.z = q[2]
-        t.transform.rotation.w = q[3]
-        self.tfbr.sendTransform(t)
+
+        q_base = tf_transformations.quaternion_from_euler(0, 0, yaw)
+        t_base = TransformStamped()
+        t_base.header.stamp = self.get_clock().now().to_msg()
+        t_base.header.frame_id = 'map'
+        t_base.child_frame_id = 'crazyflie_base'
+        t_base.transform.translation.x = x
+        t_base.transform.translation.y = y
+        t_base.transform.translation.z = 0.0
+        t_base.transform.rotation.x = q_base[0]
+        t_base.transform.rotation.y = q_base[1]
+        t_base.transform.rotation.z = q_base[2]
+        t_base.transform.rotation.w = q_base[3]
+        self.tfbr_base.sendTransform(t_base)
+
+        t_cf = TransformStamped()
+        q_cf = tf_transformations.quaternion_from_euler(roll, pitch, 0)
+        t_cf.header.stamp = self.get_clock().now().to_msg()
+        t_cf.header.frame_id = 'crazyflie_base'
+        t_cf.child_frame_id = 'crazyflie'
+        t_cf.transform.translation.x = 0.0
+        t_cf.transform.translation.y = 0.0
+        t_cf.transform.translation.z = z
+        t_cf.transform.rotation.x = q_cf[0]
+        t_cf.transform.rotation.y = q_cf[1]
+        t_cf.transform.rotation.z = q_cf[2]
+        t_cf.transform.rotation.w = q_cf[3]
+        self.tfbr_cf.sendTransform(t_cf)
+
+        
 
 def main(args=None):
 

@@ -54,6 +54,8 @@ Visualization Manager:
         All Enabled: true
         crazyflie:
           Value: true
+        crazyflie_base:
+          Value: true
         map:
           Value: true
       Marker Scale: 1
@@ -63,8 +65,9 @@ Visualization Manager:
       Show Names: false
       Tree:
         map:
-          crazyflie:
-            {}
+          crazyflie_base:
+            crazyflie:
+              {}
       Update Interval: 0
       Value: true
   Enabled: true
