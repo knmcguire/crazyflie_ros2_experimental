@@ -44,14 +44,19 @@ class CrazyfliePublisher(Node):
         self._lg_stab.add_variable('stabilizer.pitch', 'float')
         self._lg_stab.add_variable('stabilizer.yaw', 'float')
 
+        self._lg_range = LogConfig(name='Range', period_in_ms=100)
+        self._lg_range.add_variable('range.zrange', 'uint16_t')
+
         try:
             self._cf.log.add_config(self._lg_stab)
-            # This callback will receive the data
             self._lg_stab.data_received_cb.add_callback(self._stab_log_data)
-            # This callback will be called on errors
             self._lg_stab.error_cb.add_callback(self._stab_log_error)
-            # Start the logging
             self._lg_stab.start()
+            self._cf.log.add_config(self._lg_range)
+            self._lg_range.data_received_cb.add_callback(self._range_log_data)
+            self._lg_range.error_cb.add_callback(self._range_log_error)
+            self._lg_range.start()
+
         except KeyError as e:
             print('Could not start log configuration,'
                   '{} not found in TOC'.format(str(e)))
@@ -67,6 +72,19 @@ class CrazyfliePublisher(Node):
 
     def _connection_lost(self, link_uri, msg):
         print('connection_lost')
+
+    def _range_log_error(self, logconf, msg):
+        """Callback from the log API when an error occurs"""
+        print('Error when logging %s: %s' % (logconf.name, msg))
+
+    def _range_log_data(self, timestamp, data, logconf):
+        """Callback from a the log API when data arrives"""
+        for name, value in data.items():
+            print(f'{name}: {value:3.3f} ', end='')
+        print()
+        msg = Pose()
+
+        x = data.get('range.zrange')
 
     def _stab_log_error(self, logconf, msg):
         """Callback from the log API when an error occurs"""
