@@ -22,3 +22,7 @@ Run TF tree viewer
 ```
 ros2 run rqt_tf_tree rqt_tf_tree --force-discover
 ```
+Problem gui wsl https://github.com/microsoft/wslg/issues/554
+```
+LIBGL_ALWAYS_SOFTWARE=true
+```

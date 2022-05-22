@@ -4,7 +4,8 @@
     <origin rpy="0 0 0" xyz="0.0 0 0" />
     <visual>
         <geometry>
-          <cylinder length="0.02" radius="0.05" />
+          <!--cylinder length="0.02" radius="0.05" /-->
+          <mesh filename="package://crazyflie_ros2_description/meshes/cf2_assembly.stl"/>
         </geometry>      
     </visual>
   </link>
