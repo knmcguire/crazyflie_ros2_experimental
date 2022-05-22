@@ -6,6 +6,7 @@ from geometry_msgs.msg import Pose
 import tf_transformations
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
+import math
 
 import cflib.crtp  # noqa
 from cflib.crazyflie import Crazyflie
@@ -14,6 +15,9 @@ from cflib.utils import uri_helper
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 
 uri = uri_helper.uri_from_env(default='radio://0/40/2M/E7E7E7E703')
+
+def radians(degrees):  
+    return degrees * math.pi / 180.0;
 
 class CrazyfliePublisher(Node):
 
@@ -77,9 +81,9 @@ class CrazyfliePublisher(Node):
         x = data.get('stateEstimate.x')
         y = data.get('stateEstimate.y')
         z = data.get('stateEstimate.z')
-        roll = data.get('stabilizer.roll')
-        pitch = -1*data.get('stabilizer.pitch')
-        yaw = data.get('stabilizer.yaw')
+        roll = radians(data.get('stabilizer.roll'))
+        pitch = radians(-1.0 * data.get('stabilizer.pitch'))
+        yaw = radians(data.get('stabilizer.yaw'))
         msg.position.x = x
         msg.position.y = y
         msg.position.z = z
@@ -91,9 +95,12 @@ class CrazyfliePublisher(Node):
         self.publisher_.publish(msg)
 
         t = TransformStamped()
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'map'
+        t.child_frame_id = 'crazyflie'
         t.transform.translation.x = x
-        t.transform.translation.x = y
-        t.transform.translation.x = z
+        t.transform.translation.y = y
+        t.transform.translation.z = z
         t.transform.rotation.x = q[0]
         t.transform.rotation.y = q[1]
         t.transform.rotation.z = q[2]
