@@ -136,7 +136,7 @@ def main(args=None):
 
     rclpy.spin(crazyflie_publisher)
 
-    crazyflie_publish.destroy_node()
+    crazyflie_publisher.destroy_node()
     rclpy.shutdown()
 
 
