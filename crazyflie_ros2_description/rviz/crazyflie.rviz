@@ -6,6 +6,8 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /TF1
+        - /Range1
       Splitter Ratio: 0.5
     Tree Height: 555
   - Class: rviz_common/Selection
@@ -56,19 +58,36 @@ Visualization Manager:
           Value: true
         crazyflie_base:
           Value: true
+        crazyflie_flowdeck:
+          Value: true
         map:
           Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
-      Show Axes: true
+      Show Axes: false
       Show Names: false
       Tree:
         map:
           crazyflie_base:
             crazyflie:
-              {}
+              crazyflie_flowdeck:
+                {}
       Update Interval: 0
+      Value: true
+    - Alpha: 0.5
+      Buffer Length: 1
+      Class: rviz_default_plugins/Range
+      Color: 255; 0; 0
+      Enabled: true
+      Name: Range
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /zrange
       Value: true
   Enabled: true
   Global Options:
@@ -116,7 +135,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 10
+      Distance: 3.5963454246520996
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -152,5 +171,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: 28
-  Y: 28
+  X: -4
+  Y: -4

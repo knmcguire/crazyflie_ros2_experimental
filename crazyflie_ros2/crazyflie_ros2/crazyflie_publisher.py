@@ -6,13 +6,15 @@ from geometry_msgs.msg import Pose
 import tf_transformations
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
-import math
+from sensor_msgs.msg import Range
 
 import cflib.crtp  # noqa
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 from cflib.utils import uri_helper
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
+
+import math
 
 uri = uri_helper.uri_from_env(default='radio://0/40/2M/E7E7E7E703')
 
@@ -23,9 +25,10 @@ class CrazyfliePublisher(Node):
 
     def __init__(self, link_uri):
         super().__init__('crazyflie_publisher')
-        self.publisher_ = self.create_publisher(Pose, 'pose', 10)
-        self.tfbr_base = TransformBroadcaster(self)
-        self.tfbr_cf = TransformBroadcaster(self)
+        self.pose_publisher = self.create_publisher(Pose, 'pose', 10)
+        self.range_publisher = self.create_publisher(Range, 'zrange', 10)
+        self.tfbr = TransformBroadcaster(self)
+
 
         self._cf = Crazyflie(rw_cache='./cache')
         self._cf.connected.add_callback(self._connected)
@@ -82,9 +85,30 @@ class CrazyfliePublisher(Node):
         for name, value in data.items():
             print(f'{name}: {value:3.3f} ', end='')
         print()
-        msg = Pose()
 
-        x = data.get('range.zrange')
+        t_range = TransformStamped()
+        q = tf_transformations.quaternion_from_euler(0, radians(90), 0)
+        t_range.header.stamp = self.get_clock().now().to_msg()
+        t_range.header.frame_id = 'crazyflie'
+        t_range.child_frame_id = 'crazyflie_flowdeck'
+        t_range.transform.rotation.x = q[0]
+        t_range.transform.rotation.y = q[1]
+        t_range.transform.rotation.z = q[2]
+        t_range.transform.rotation.w = q[3]
+        self.tfbr.sendTransform(t_range)
+
+        zrange = float(data.get('range.zrange'))/1000.0
+        msg = Range()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'crazyflie_flowdeck'
+        msg.field_of_view = radians(4.7)
+        msg.radiation_type = Range().INFRARED
+        msg.min_range = 0.01
+        msg.max_range = 4.00
+        msg.range = zrange
+        self.range_publisher.publish(msg)
+
+
 
     def _stab_log_error(self, logconf, msg):
         """Callback from the log API when an error occurs"""
@@ -111,7 +135,7 @@ class CrazyfliePublisher(Node):
         msg.orientation.y = q[1]
         msg.orientation.z = q[2]
         msg.orientation.w = q[3]
-        self.publisher_.publish(msg)
+        self.pose_publisher.publish(msg)
 
 
         q_base = tf_transformations.quaternion_from_euler(0, 0, yaw)
@@ -126,7 +150,7 @@ class CrazyfliePublisher(Node):
         t_base.transform.rotation.y = q_base[1]
         t_base.transform.rotation.z = q_base[2]
         t_base.transform.rotation.w = q_base[3]
-        self.tfbr_base.sendTransform(t_base)
+        self.tfbr.sendTransform(t_base)
 
         t_cf = TransformStamped()
         q_cf = tf_transformations.quaternion_from_euler(roll, pitch, 0)
@@ -140,7 +164,7 @@ class CrazyfliePublisher(Node):
         t_cf.transform.rotation.y = q_cf[1]
         t_cf.transform.rotation.z = q_cf[2]
         t_cf.transform.rotation.w = q_cf[3]
-        self.tfbr_cf.sendTransform(t_cf)
+        self.tfbr.sendTransform(t_cf)
 
         
 
