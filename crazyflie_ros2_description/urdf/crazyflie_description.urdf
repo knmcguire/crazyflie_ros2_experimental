@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot name="crazyflie" xmlns:xacro="http://ros.org/wiki/xacro">
+  <link name="crazyflie">
+    <origin rpy="0 0 0" xyz="0.0 0 0" />
+    <visual>
+        <geometry>
+          <cylinder length="0.02" radius="0.05" />
+        </geometry>      
+    </visual>
+  </link>
+</robot>
