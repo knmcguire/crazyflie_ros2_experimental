@@ -7,6 +7,7 @@ import tf_transformations
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
 from sensor_msgs.msg import Range
+from sensor_msgs.msg import LaserScan
 
 import cflib.crtp  # noqa
 from cflib.crazyflie import Crazyflie
@@ -27,6 +28,8 @@ class CrazyfliePublisher(Node):
         super().__init__('crazyflie_publisher')
         self.pose_publisher = self.create_publisher(Pose, 'pose', 10)
         self.range_publisher = self.create_publisher(Range, 'zrange', 10)
+        self.laser_publisher = self.create_publisher(LaserScan, 'scan', 10)
+        
         self.tfbr = TransformBroadcaster(self)
 
 
@@ -49,6 +52,11 @@ class CrazyfliePublisher(Node):
 
         self._lg_range = LogConfig(name='Range', period_in_ms=100)
         self._lg_range.add_variable('range.zrange', 'uint16_t')
+        self._lg_range.add_variable('range.front', 'uint16_t')
+        self._lg_range.add_variable('range.right', 'uint16_t')
+        self._lg_range.add_variable('range.left', 'uint16_t')
+        self._lg_range.add_variable('range.back', 'uint16_t')
+
 
         try:
             self._cf.log.add_config(self._lg_stab)
@@ -107,6 +115,25 @@ class CrazyfliePublisher(Node):
         msg.max_range = 4.00
         msg.range = zrange
         self.range_publisher.publish(msg)
+
+        front_range = float(data.get('range.front'))/1000.0
+        left_range = float(data.get('range.left'))/1000.0
+        back_range = float(data.get('range.back'))/1000.0
+        right_range = float(data.get('range.right'))/1000.0
+
+        msg = LaserScan()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'crazyflie'
+        msg.range_min = 0.01
+        msg.range_max = 4.00
+        msg.ranges = [front_range, left_range, back_range, right_range]
+        #msg.ranges[1] = left_range
+        #msg.ranges[2] = back_range
+        #msg.ranges[3] = right_range
+        msg.angle_min = 0.0
+        msg.angle_max = 2*math.pi
+        msg.angle_increment = math.pi/2
+        self.laser_publisher.publish(msg)
 
 
 
