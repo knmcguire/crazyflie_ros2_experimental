@@ -26,3 +26,6 @@ Problem gui wsl https://github.com/microsoft/wslg/issues/554
 ```
 LIBGL_ALWAYS_SOFTWARE=true
 ```
+```
+ ros2 launch slam_toolbox online_async_launch.py 
+```

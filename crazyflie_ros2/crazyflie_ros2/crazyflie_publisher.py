@@ -97,7 +97,7 @@ class CrazyfliePublisher(Node):
         t_range = TransformStamped()
         q = tf_transformations.quaternion_from_euler(0, radians(90), 0)
         t_range.header.stamp = self.get_clock().now().to_msg()
-        t_range.header.frame_id = 'crazyflie'
+        t_range.header.frame_id = 'base_crazyflie'
         t_range.child_frame_id = 'crazyflie_flowdeck'
         t_range.transform.rotation.x = q[0]
         t_range.transform.rotation.y = q[1]
@@ -123,7 +123,7 @@ class CrazyfliePublisher(Node):
 
         msg = LaserScan()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'crazyflie'
+        msg.header.frame_id = 'base_crazyflie'
         msg.range_min = 0.01
         msg.range_max = 4.00
         msg.ranges = [front_range, left_range, back_range, right_range]
@@ -168,8 +168,8 @@ class CrazyfliePublisher(Node):
         q_base = tf_transformations.quaternion_from_euler(0, 0, yaw)
         t_base = TransformStamped()
         t_base.header.stamp = self.get_clock().now().to_msg()
-        t_base.header.frame_id = 'map'
-        t_base.child_frame_id = 'crazyflie_base'
+        t_base.header.frame_id = 'odom'
+        t_base.child_frame_id = 'base_footprint'
         t_base.transform.translation.x = x
         t_base.transform.translation.y = y
         t_base.transform.translation.z = 0.0
@@ -179,11 +179,26 @@ class CrazyfliePublisher(Node):
         t_base.transform.rotation.w = q_base[3]
         self.tfbr.sendTransform(t_base)
 
+        t_odom = TransformStamped()
+        t_odom.header.stamp = self.get_clock().now().to_msg()
+        t_odom.header.frame_id = 'odom'
+        t_odom.child_frame_id = 'base_footprint'
+        q_odom = tf_transformations.quaternion_from_euler(0, 0, 0)
+        t_odom.transform.translation.x = 0.0
+        t_odom.transform.translation.y = 0.0
+        t_odom.transform.translation.z = 0.1
+        t_odom.transform.rotation.x = q_odom[0]
+        t_odom.transform.rotation.y = q_odom[1]
+        t_odom.transform.rotation.z = q_odom[2]
+        t_odom.transform.rotation.w = q_odom[3]
+    
+        #self.tfbr.sendTransform(t_odom)
+
         t_cf = TransformStamped()
         q_cf = tf_transformations.quaternion_from_euler(roll, pitch, 0)
         t_cf.header.stamp = self.get_clock().now().to_msg()
-        t_cf.header.frame_id = 'crazyflie_base'
-        t_cf.child_frame_id = 'crazyflie'
+        t_cf.header.frame_id = 'base_footprint'
+        t_cf.child_frame_id = 'base_crazyflie'
         t_cf.transform.translation.x = 0.0
         t_cf.transform.translation.y = 0.0
         t_cf.transform.translation.z = z
