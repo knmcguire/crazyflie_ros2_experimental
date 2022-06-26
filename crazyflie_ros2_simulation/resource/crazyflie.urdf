@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<robot name="My robot">
+<robot name="Crazyflie">
     <webots>
         <plugin type="crazyflie_ros2_simulation.crazyflie_webots_driver.CrazyflieWebotsDriver" />
     </webots>

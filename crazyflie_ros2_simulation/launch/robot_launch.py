@@ -8,7 +8,7 @@ from webots_ros2_driver.webots_launcher import WebotsLauncher
 
 
 def generate_launch_description():
-    package_dir = get_package_share_directory('my_package')
+    package_dir = get_package_share_directory('crazyflie_ros2_simulation')
     robot_description = pathlib.Path(os.path.join(package_dir, 'resource', 'crazyflie.urdf')).read_text()
 
     webots = WebotsLauncher(
