@@ -10,37 +10,38 @@ import cffirmware
 class CrazyflieWebotsDriver:
     def init(self, webots_node, properties):
         self.robot = webots_node.robot
+        timestep = int(self.robot.getBasicTimeStep())
 
         ## Initialize motors
-        self.m1_motor = self.robotrobot.getDevice("m1_motor")
+        self.m1_motor = self.robot.getDevice("m1_motor")
         self.m1_motor.setPosition(float('inf'))
         self.m1_motor.setVelocity(-1)
-        self.m2_motor = self.robotrobot.getDevice("m2_motor")
+        self.m2_motor = self.robot.getDevice("m2_motor")
         self.m2_motor.setPosition(float('inf'))
         self.m2_motor.setVelocity(1)
-        self.m3_motor = self.robotrobot.getDevice("m3_motor")
+        self.m3_motor = self.robot.getDevice("m3_motor")
         self.m3_motor.setPosition(float('inf'))
         self.m3_motor.setVelocity(-1)
-        self.m4_motor = self.robotrobot.getDevice("m4_motor")
+        self.m4_motor = self.robot.getDevice("m4_motor")
         self.m4_motor.setPosition(float('inf'))
         self.m4_motor.setVelocity(1)
 
         self.target_twist = Twist()
 
         ## Initialize Sensors
-        self.imu = self.robotrobot.getDevice("inertial unit")
+        self.imu = self.robot.getDevice("inertial unit")
         self.imu.enable(timestep)
-        self.gps = self.robotrobot.getDevice("gps")
+        self.gps = self.robot.getDevice("gps")
         self.gps.enable(timestep)
-        self.gyro = self.robotrobot.getDevice("gyro")
+        self.gyro = self.robot.getDevice("gyro")
         self.gyro.enable(timestep)
-        self.range_front = self.robotrobot.getDevice("range_front")
+        self.range_front = self.robot.getDevice("range_front")
         self.range_front.enable(timestep)
-        self.range_left = self.robotrobot.getDevice("range_left")
+        self.range_left = self.robot.getDevice("range_left")
         self.range_left.enable(timestep)
-        self.range_back = self.robotrobot.getDevice("range_back")
+        self.range_back = self.robot.getDevice("range_back")
         self.range_back.enable(timestep)
-        self.range_right = self.robotrobot.getDevice("range_right")
+        self.range_right = self.robot.getDevice("range_right")
         self.range_right.enable(timestep)
 
         ## Intialize Variables
@@ -52,12 +53,12 @@ class CrazyflieWebotsDriver:
         cffirmware.controllerPidInit()
 
         rclpy.init(args=None)
-        self.node = rclpy.create_node('crazyflie_webots_driver')
+        self.__node = rclpy.create_node('crazyflie_webots_driver')
 
     def step(self):
-        rclpy.spin_once(self.node, timeout_sec=0)
+        rclpy.spin_once(self.__node, timeout_sec=0)
 
-        dt = robot.getTime() - self.past_time
+        dt = self.robot.getTime() - self.past_time
 
         ## Get measurements
         roll = self.imu.getRollPitchYaw()[0]
@@ -68,10 +69,10 @@ class CrazyflieWebotsDriver:
         yaw_rate = self.gyro.getValues()[2]
         x_global = self.gps.getValues()[0]
         vx_global = (x_global - self.past_x_global)/dt
-        y_global = gps.getValues()[1]
-        vy_global = (y_global - past_y_global)/dt
-        z_global = gps.getValues()[2]
-        vz_global = (z_global - past_z_global)/dt
+        y_global = self.gps.getValues()[1]
+        vy_global = (y_global - self.past_y_global)/dt
+        z_global = self.gps.getValues()[2]
+        vz_global = (z_global - self.past_z_global)/dt
 
 
         ## Put measurement in state estimate
@@ -93,6 +94,8 @@ class CrazyflieWebotsDriver:
         sensors.gyro.y = degrees(pitch_rate)
         sensors.gyro.z = degrees(yaw_rate)
 
+        yawDesired=0
+
         ## Fill in Setpoints
         setpoint = cffirmware.setpoint_t()
         setpoint.mode.z = cffirmware.modeAbs
@@ -105,17 +108,10 @@ class CrazyflieWebotsDriver:
         setpoint.velocity.y = 0
         setpoint.velocity_body = True
 
-        ## Fill in Setpoints
-        setpoint = cffirmware.setpoint_t()
-        setpoint.mode.z = cffirmware.modeAbs
-        setpoint.position.z = 1.0
-        setpoint.mode.yaw = cffirmware.modeVelocity
-        setpoint.attitudeRate.yaw = degrees(yawDesired)
-        setpoint.mode.x = cffirmware.modeVelocity
-        setpoint.mode.y = cffirmware.modeVelocity
-        setpoint.velocity.x = forwardDesired
-        setpoint.velocity.y = sidewaysDesired
-        setpoint.velocity_body = True
+        ## Firmware PID bindings
+        control = cffirmware.control_t()
+        tick = 100 #this value makes sure that the position controller and attitude controller are always always initiated
+        cffirmware.controllerPid(control, setpoint,sensors,state,tick)
 
         ## 
         cmd_roll = radians(control.roll)
@@ -136,6 +132,6 @@ class CrazyflieWebotsDriver:
         self.m4_motor.setVelocity(motorPower_m4/scaling)
 
         self.past_time = self.robot.getTime()
-        self.past_x_global = self.x_global
-        self.past_y_global = self.y_global
-        self.past_z_global = self.z_global
+        self.past_x_global = x_global
+        self.past_y_global = y_global
+        self.past_z_global = z_global
