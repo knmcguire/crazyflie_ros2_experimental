@@ -7,7 +7,7 @@ sys.path.append('/home/knmcguire/Development/bitcraze/c/crazyflie-firmware')
 import cffirmware
 
 
-class MyRobotDriver:
+class CrazyflieWebotsDriver:
     def init(self, webots_node, properties):
         self.robot = webots_node.robot
 
@@ -53,7 +53,7 @@ class MyRobotDriver:
 
         rclpy.init(args=None)
         self.node = rclpy.create_node('crazyflie_webots_driver')
-        
+
     def step(self):
         rclpy.spin_once(self.node, timeout_sec=0)
 
