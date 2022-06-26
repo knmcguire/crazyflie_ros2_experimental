@@ -1,16 +1,23 @@
 #VRML_SIM R2022b utf8
 
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/3a7ab7b509457afeccb1a368e22ec486bef775e3/projects/robots/bitcraze/crazyflie/protos/Crazyflie.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/3a7ab7b509457afeccb1a368e22ec486bef775e3/projects/appearances/protos/VarnishedPine.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/3a7ab7b509457afeccb1a368e22ec486bef775e3/projects/appearances/protos/Parquetry.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/3a7ab7b509457afeccb1a368e22ec486bef775e3/projects/objects/backgrounds/protos/TexturedBackground.proto"
+
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.1218286893960449 0.7068739213660478 0.6967689930907005 0.741677278791581
-  position -2.8745455165827267 -1.9198045045137806 2.3149047572877013
+  orientation -0.11449215170032705 0.7144664474001132 0.6902385404615498 0.7206999245927307
+  position -2.4732820895336665 -1.5907396460090664 1.973097387801552
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 Floor {
+  appearance Parquetry {
+  }
 }
 Crazyflie {
 }
