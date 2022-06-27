@@ -3,7 +3,7 @@
 
 ![header](header.png)
 
-This is my Bitcraze Summer project of 2022! Purpose: To implement SLAM with the [Crazyflie](https://www.bitcraze.io/products/crazyflie-2-1/) and [Multiranger](https://www.bitcraze.io/products/multi-ranger-deck/), on both the real drone and simulation. 
+This is my Bitcraze Summer project of 2022! Purpose: To use ROS2 to implement SLAM and navigation with the [Crazyflie](https://www.bitcraze.io/products/crazyflie-2-1/) and [Multiranger](https://www.bitcraze.io/products/multi-ranger-deck/), on both the real drone and simulation. 
 
 This is very much in progress but I'm excited to work on this and very confident that this will work at the end. Also this is a good opertunity for me to show an ROS2 implementation of a new platform from scratch, so why not start with the Crazyflie :)
 
@@ -42,6 +42,11 @@ You will need an [STEM ranging bundle](https://store.bitcraze.io/collections/bun
     ros2 launch crfazyflie_ros2_simulation robot_launch.py
 
 ## Planning
+- ~~Make a publish ROS2 node for crazyflie (with [cflib](https://github.com/bitcraze/crazyflie-lib-python)) to publish pose and transform~~
+- ~~Make crazyflie description package with RVIZ visualization file and crazyfie robot mesh~~
+- ~~Make crazyflie_ros2_slam node starting with the slam_toolbox's parameters~~
+- ~~Connect crazyflie_ros node to the crazyflie_ros2_node and generate an map with Rviz (needs tuning in simulation first~~
+- ~~Make crazyflie_ros2_simulation package with Webots~~
 - Turn the[ multiranger pointcloud](https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/multiranger/multiranger_pointcloud.py) example into a rosnode equivalent (crazyflie_ros2_simple_map)
 - Connect webots simulation to the SLAM toolbox
 - In Simulation tune the SLAM toolbox to work for 4 laser rangers (if possible)
