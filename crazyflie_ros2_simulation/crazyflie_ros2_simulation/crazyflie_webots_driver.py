@@ -53,10 +53,14 @@ class CrazyflieWebotsDriver:
         cffirmware.controllerPidInit()
 
         rclpy.init(args=None)
-        self.__node = rclpy.create_node('crazyflie_webots_driver')
+        self.node = rclpy.create_node('crazyflie_webots_driver')
+        self.node.create_subscription(Twist, 'cmd_vel', self.cmd_vel_callback, 1)
 
+    def cmd_vel_callback(self, twist):
+        self.target_twist = twist
+    
     def step(self):
-        rclpy.spin_once(self.__node, timeout_sec=0)
+        rclpy.spin_once(self.node, timeout_sec=0)
 
         dt = self.robot.getTime() - self.past_time
 
@@ -101,11 +105,11 @@ class CrazyflieWebotsDriver:
         setpoint.mode.z = cffirmware.modeAbs
         setpoint.position.z = 1.0
         setpoint.mode.yaw = cffirmware.modeVelocity
-        setpoint.attitudeRate.yaw = degrees(yawDesired)
+        setpoint.attitudeRate.yaw = degrees(self.target_twist.angular.z)
         setpoint.mode.x = cffirmware.modeVelocity
         setpoint.mode.y = cffirmware.modeVelocity
-        setpoint.velocity.x = 0
-        setpoint.velocity.y = 0
+        setpoint.velocity.x = self.target_twist.linear.x
+        setpoint.velocity.y = self.target_twist.linear.y
         setpoint.velocity_body = True
 
         ## Firmware PID bindings
