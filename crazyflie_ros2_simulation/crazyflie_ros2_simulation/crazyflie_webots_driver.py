@@ -3,9 +3,11 @@ from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
 
 from math import cos, sin, degrees, radians, pi
 import sys
+import tf_transformations
 
 # Change this path to your crazyflie-firmware folder
 sys.path.append('/home/knmcguire/Development/bitcraze/c/crazyflie-firmware')
@@ -61,6 +63,7 @@ class CrazyflieWebotsDriver:
         self.node = rclpy.create_node('crazyflie_webots_driver')
         self.node.create_subscription(Twist, 'cmd_vel', self.cmd_vel_callback, 1)
         self.laser_publisher = self.node.create_publisher(LaserScan, 'scan', 10)
+        self.odom_publisher = self.node.create_publisher(Odometry, 'odom', 10)
 
     def cmd_vel_callback(self, twist):
         self.target_twist = twist
@@ -99,6 +102,20 @@ class CrazyflieWebotsDriver:
         msg.angle_max = 2*pi
         msg.angle_increment = pi/2
         self.laser_publisher.publish(msg)
+
+        q_base = tf_transformations.quaternion_from_euler(roll, pitch, yaw)
+        odom = Odometry()
+        odom.header.stamp = self.node.get_clock().now().to_msg()
+        odom.header.frame_id = 'odom'
+        odom.child_frame_id = 'base_link'
+        odom.pose.pose.position.x = x_global
+        odom.pose.pose.position.y = y_global
+        odom.pose.pose.position.z = z_global
+        odom.pose.pose.orientation.x = q_base[0]
+        odom.pose.pose.orientation.y = q_base[1]
+        odom.pose.pose.orientation.z = q_base[2]
+        odom.pose.pose.orientation.w = q_base[3]
+        self.odom_publisher.publish(odom)
 
         ## Put measurement in state estimate
         # TODO replace these with a EKF python binding
