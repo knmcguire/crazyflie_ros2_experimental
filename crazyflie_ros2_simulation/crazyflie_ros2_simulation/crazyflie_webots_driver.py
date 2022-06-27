@@ -1,7 +1,11 @@
 import rclpy
+
 from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+
 from math import cos, sin, degrees, radians 
 import sys
+
 # Change this path to your crazyflie-firmware folder
 sys.path.append('/home/knmcguire/Development/bitcraze/c/crazyflie-firmware')
 import cffirmware
@@ -78,6 +82,21 @@ class CrazyflieWebotsDriver:
         z_global = self.gps.getValues()[2]
         vz_global = (z_global - self.past_z_global)/dt
 
+        front_range = range_front.getValue()/1000.0
+        back_range = range_back.getValue()/1000.0
+        left_range = range_left.getValue()/1000.0
+        right_range = range_right.getValue()/1000.0
+
+        msg = LaserScan()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'base_crazyflie'
+        msg.range_min = 0.01
+        msg.range_max = 4.00
+        msg.ranges = [front_range, left_range, back_range, right_range]
+        msg.angle_min = 0.0
+        msg.angle_max = 2*math.pi
+        msg.angle_increment = math.pi/2
+        self.laser_publisher.publish(msg)
 
         ## Put measurement in state estimate
         # TODO replace these with a EKF python binding
@@ -111,6 +130,8 @@ class CrazyflieWebotsDriver:
         setpoint.velocity.x = self.target_twist.linear.x
         setpoint.velocity.y = self.target_twist.linear.y
         setpoint.velocity_body = True
+
+         
 
         ## Firmware PID bindings
         control = cffirmware.control_t()
