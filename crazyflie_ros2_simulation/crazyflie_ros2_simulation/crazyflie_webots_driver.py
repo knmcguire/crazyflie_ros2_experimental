@@ -1,9 +1,10 @@
 import rclpy
+from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
-from math import cos, sin, degrees, radians 
+from math import cos, sin, degrees, radians, pi
 import sys
 
 # Change this path to your crazyflie-firmware folder
@@ -59,6 +60,7 @@ class CrazyflieWebotsDriver:
         rclpy.init(args=None)
         self.node = rclpy.create_node('crazyflie_webots_driver')
         self.node.create_subscription(Twist, 'cmd_vel', self.cmd_vel_callback, 1)
+        self.laser_publisher = self.node.create_publisher(LaserScan, 'scan', 10)
 
     def cmd_vel_callback(self, twist):
         self.target_twist = twist
@@ -82,20 +84,20 @@ class CrazyflieWebotsDriver:
         z_global = self.gps.getValues()[2]
         vz_global = (z_global - self.past_z_global)/dt
 
-        front_range = range_front.getValue()/1000.0
-        back_range = range_back.getValue()/1000.0
-        left_range = range_left.getValue()/1000.0
-        right_range = range_right.getValue()/1000.0
+        front_range = self.range_front.getValue()/1000.0
+        back_range = self.range_back.getValue()/1000.0
+        left_range = self.range_left.getValue()/1000.0
+        right_range = self.range_right.getValue()/1000.0
 
         msg = LaserScan()
-        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.stamp = self.node.get_clock().now().to_msg()
         msg.header.frame_id = 'base_crazyflie'
         msg.range_min = 0.01
         msg.range_max = 4.00
         msg.ranges = [front_range, left_range, back_range, right_range]
         msg.angle_min = 0.0
-        msg.angle_max = 2*math.pi
-        msg.angle_increment = math.pi/2
+        msg.angle_max = 2*pi
+        msg.angle_increment = pi/2
         self.laser_publisher.publish(msg)
 
         ## Put measurement in state estimate
