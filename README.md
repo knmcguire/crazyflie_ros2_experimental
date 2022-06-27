@@ -1,4 +1,67 @@
-# crazyflie_ros2
+# crazyflie_ros2_experimental
+
+
+![header](header.png)
+
+This is my Bitcraze Summer project of 2022! Purpose: To implement SLAM with the [Crazyflie](https://www.bitcraze.io/products/crazyflie-2-1/) and [Multiranger](https://www.bitcraze.io/products/multi-ranger-deck/), on both the real drone and simulation. 
+
+This is very much in progress but I'm excited to work on this and very confident that this will work at the end. Also this is a good opertunity for me to show an ROS2 implementation of a new platform from scratch, so why not start with the Crazyflie :)
+
+
+## Goal
+
+Pretty much this:
+
+![wall_following](wallfollowing_webots.gif)
+
+... but with a map generated while doing it, and using navigate with it. And... being able to do this on a real Crazyflie too! How hard can it be? :D
+
+But no seriously, I hope to at least get the SLAM mapping toolbox to work by the end of the summer 2022, and from there it is an ongoing project that can pretty much go on. If we got something working and stable, it could be part of an official Crazyflie_ROS2 package that we release in the future. Also it would be great to show these with existing packages like [SLAM_toolbox](https://github.com/SteveMacenski/slam_toolbox) or [NAV2](https://github.com/ros-planning/navigation2).
+
+For now this project is on my personal github repo for now and once there is something solid working it will be probably transfered to the [Bitcraze Github organization](https://github.com/bitcraze/).
+
+
+## Explanation per package
+- crazyflie_ros2: The Crazyflie package that has contact with the Crazyflie directly and publishes the transforms
+- crazyflie_ros2_description: The package that handles the RVIZ screen and also includes meshes if necessary
+- crazyflie_ros2_simulation: A webots simulator world and ROS node controller (based on the experimental [bitcraze simulation repo](https://github.com/bitcraze/crazyflie-simulation))
+- crazyflie_ros2_slam: Using an existing SLAM toolbox to create a map
+- ... more to come (check [planning](#planning))
+
+
+## How to run
+
+Still very experimental and not ready yet!
+
+### Real Crazyflie with Slam toolbox (no control)
+You will need an [STEM ranging bundle](https://store.bitcraze.io/collections/bundles/products/stem-ranging-bundle) for this...
+
+    ros2 launch crazyflie_ros2_slam slam_toolbox_mapping_launch.py 
+
+### Simulated Crazyflie (no SLAM yet)
+    ros2 launch crfazyflie_ros2_simulation robot_launch.py
+
+## Planning
+- Turn the[ multiranger pointcloud](https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/multiranger/multiranger_pointcloud.py) example into a rosnode equivalent (crazyflie_ros2_simple_map)
+- Connect webots simulation to the SLAM toolbox
+- In Simulation tune the SLAM toolbox to work for 4 laser rangers (if possible)
+- If tunable, try out on real crazyflie + multiranger
+- Make a NAV2 package that can do something with the map
+- Implement wall following?
+- If available, use python bindings of the Crazyflie's onboard EKF 
+- Try out new multi-zone multiranger deck
+
+### Issues to solve
+- crazyflie_ros needs to publish odometry messages properly
+- replace manual crazyflie robot after webot's release
+
+
+
+
+
+
+## Some handy things for me to remember:
+
 
 For installing cflib as an external dependency
 
