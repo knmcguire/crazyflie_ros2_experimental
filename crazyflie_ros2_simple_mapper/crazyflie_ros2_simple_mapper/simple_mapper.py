@@ -1,11 +1,20 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile
 
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import OccupancyGrid
+from geometry_msgs.msg import TransformStamped
+from tf2_ros import StaticTransformBroadcaster
 
 import tf_transformations
 import math
+import numpy as np
+
+GLOBAL_SIZE_X = 8.0
+GLOBAL_SIZE_Y = 8.0
+MAP_RES = 0.1
 
 class SimpleMapper(Node):
     def __init__(self):
@@ -14,8 +23,22 @@ class SimpleMapper(Node):
         self.ranges_subscriber = self.create_subscription(LaserScan, '/scan', self.scan_subsribe_callback, 10)
         self.position =  [0.0, 0.0, 0.0]
         self.angles =  [0.0, 0.0, 0.0]
-        self.ranges = [0.0, 0.0, 0.0, 0.0]'
+        self.ranges = [0.0, 0.0, 0.0, 0.0]
         self.range_max = 4.0
+
+        self.tfbr = StaticTransformBroadcaster(self)
+        t_map = TransformStamped()
+        t_map.header.stamp = self.get_clock().now().to_msg()
+        t_map.header.frame_id = 'map'
+        t_map.child_frame_id = 'odom'
+        t_map.transform.translation.x = 0.0
+        t_map.transform.translation.y = 0.0
+        t_map.transform.translation.z = 0.0
+        self.tfbr.sendTransform(t_map)
+
+        self.map = [-1] * int(GLOBAL_SIZE_X / MAP_RES) * int(GLOBAL_SIZE_Y / MAP_RES)
+        self.map_publisher = self.create_publisher(OccupancyGrid, '/map',
+            qos_profile=QoSProfile( depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL, history=HistoryPolicy.KEEP_LAST,))
 
     def odom_subcribe_callback(self, msg):
         self.position[0] = msg.pose.pose.position.x
@@ -30,35 +53,29 @@ class SimpleMapper(Node):
     def scan_subsribe_callback(self, msg):
         self.ranges = msg.ranges
         self.range_max = msg.range_max
+        data = self.rotate_and_create_points()
 
-def rot(self, roll, pitch, yaw, origin, point):
-        cosr = math.cos(math.radians(roll))
-        cosp = math.cos(math.radians(pitch))
-        cosy = math.cos(math.radians(yaw))
+        points_x = []
+        points_y = []
+        #
+        for i in range(len(data)):
+            point_x = int((data[i][0] - GLOBAL_SIZE_X / 2.0)/ MAP_RES )
+            point_y = int((data[i][1] - GLOBAL_SIZE_Y / 2.0)/ MAP_RES )
+            points_x.append(point_x)
+            points_y.append(point_y)
 
-        sinr = math.sin(math.radians(roll))
-        sinp = math.sin(math.radians(pitch))
-        siny = math.sin(math.radians(yaw))
+            self.map[point_x * int(GLOBAL_SIZE_X / MAP_RES) +  point_y] = 100
 
-        roty = np.array([[cosy, -siny, 0],
-                         [siny, cosy, 0],
-                         [0, 0,    1]])
-
-        rotp = np.array([[cosp, 0, sinp],
-                         [0, 1, 0],
-                         [-sinp, 0, cosp]])
-
-        rotr = np.array([[1, 0,   0],
-                         [0, cosr, -sinr],
-                         [0, sinr,  cosr]])
-
-        rotFirst = np.dot(rotr, rotp)
-
-        rot = np.array(np.dot(rotFirst, roty))
-
-        tmp = np.subtract(point, origin)
-        tmp2 = np.dot(rot, tmp)
-        return np.add(tmp2, origin)
+        msg = OccupancyGrid()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'map'
+        msg.info.resolution = MAP_RES
+        msg.info.width = int(GLOBAL_SIZE_X / MAP_RES)
+        msg.info.height = int(GLOBAL_SIZE_Y / MAP_RES)
+        msg.info.origin.position.x = - GLOBAL_SIZE_X / 2.0
+        msg.info.origin.position.y = - GLOBAL_SIZE_Y / 2.0
+        msg.data = self.map
+        self.map_publisher.publish(msg)
 
     def rotate_and_create_points(self):
         data = []
@@ -66,10 +83,10 @@ def rot(self, roll, pitch, yaw, origin, point):
         roll = self.angles[0]
         pitch = self.angles[1]
         yaw = self.angles[2]
-        r_front = self.range[0]
-        r_left = self.range[1]
-        r_back = self.range[2]
-        r_right = self.range[3]
+        r_front = self.ranges[0]
+        r_left = self.ranges[1]
+        r_back = self.ranges[2]
+        r_right = self.ranges[3]
 
         if (r_left < self.range_max):
             left = [o[0], o[1] + r_left, o[2]]
@@ -84,10 +101,40 @@ def rot(self, roll, pitch, yaw, origin, point):
             data.append(self.rot(roll, pitch, yaw, o, front))
 
         if (r_back < self.range_max):
-            back = [o[0] - r_back. o[1], o[2]]
+            back = [o[0] - r_back, o[1], o[2]]
             data.append(self.rot(roll, pitch, yaw, o, back))
 
         return data
+
+
+    def rot(self, roll, pitch, yaw, origin, point):
+            cosr = math.cos((roll))
+            cosp = math.cos((pitch))
+            cosy = math.cos((yaw))
+
+            sinr = math.sin((roll))
+            sinp = math.sin((pitch))
+            siny = math.sin((yaw))
+
+            roty = np.array([[cosy, -siny, 0],
+                            [siny, cosy, 0],
+                            [0, 0,    1]])
+
+            rotp = np.array([[cosp, 0, sinp],
+                            [0, 1, 0],
+                            [-sinp, 0, cosp]])
+
+            rotr = np.array([[1, 0,   0],
+                            [0, cosr, -sinr],
+                            [0, sinr,  cosr]])
+
+            rotFirst = np.dot(rotr, rotp)
+
+            rot = np.array(np.dot(rotFirst, roty))
+
+            tmp = np.subtract(point, origin)
+            tmp2 = np.dot(rot, tmp)
+            return np.add(tmp2, origin)
 
 def main(args=None):
 
