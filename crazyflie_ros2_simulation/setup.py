@@ -10,21 +10,14 @@ data_files=[
     ]
 
 def package_files(data_files, directory_list):
-
     paths_dict = {}
-
     for directory in directory_list:
-
         for (path, directories, filenames) in os.walk(directory):
-
             for filename in filenames:
-
                 file_path = os.path.join(path, filename)
                 install_path = os.path.join('share', package_name, path)
-
                 if install_path in paths_dict.keys():
                     paths_dict[install_path].append(file_path)
-
                 else:
                     paths_dict[install_path] = [file_path]
 
