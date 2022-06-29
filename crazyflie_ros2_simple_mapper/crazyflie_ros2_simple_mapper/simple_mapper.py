@@ -2,30 +2,31 @@ import rclpy
 from rclpy.node import Node
 
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
 
 import tf_transformations
 
 class SimpleMapper(Node):
     def __init__(self):
         super().__init__('simple_mapper')
-        self.odom_subsriber = self.create_subscription(Odometry, '/odom', self.odom_subcribe_callback, 10)
-        self.x_global = 0.0
-        self.y_global = 0.0
-        self.z_global = 0.0
-        self.roll = 0.0
-        self.pitch = 0.0
-        self.yaw = 0.0
+        self.odom_subscriber = self.create_subscription(Odometry, '/odom', self.odom_subcribe_callback, 10)
+        self.ranges_subscriber = self.create_subscription(LaserScan, '/scan', self.scan_subsribe_callback, 10)
+        self.position =  [0.0, 0.0, 0.0]
+        self.angles =  [0.0, 0.0, 0.0]
+        self.ranges = [0.0, 0.0, 0.0, 0.0]
 
     def odom_subcribe_callback(self, msg):
-        self.x_global = msg.pose.pose.position.x
-        self.y_global = msg.pose.pose.position.y
-        self.z_global = msg.pose.pose.position.z
+        self.position[0] = msg.pose.pose.position.x
+        self.position[1] = msg.pose.pose.position.y
+        self.position[2] = msg.pose.pose.position.z
         q = msg.pose.pose.orientation
         euler = tf_transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])
-        self.roll = euler[0]
-        self.pitch = euler[1]
-        self.yaw = euler[2]
-        
+        self.angles[0] = euler[0]
+        self.angles[1] = euler[1]
+        self.angles[2] = euler[2]
+
+    def scan_subsribe_callback(self, msg):
+        self.ranges = msg.ranges
 
 
 def main(args=None):
