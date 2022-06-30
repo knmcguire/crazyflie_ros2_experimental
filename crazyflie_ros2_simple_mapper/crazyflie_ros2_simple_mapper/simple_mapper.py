@@ -11,6 +11,7 @@ from tf2_ros import StaticTransformBroadcaster
 import tf_transformations
 import math
 import numpy as np
+from bresenham import bresenham
 
 GLOBAL_SIZE_X = 8.0
 GLOBAL_SIZE_Y = 8.0
@@ -63,8 +64,11 @@ class SimpleMapper(Node):
             point_y = int((data[i][1] - GLOBAL_SIZE_Y / 2.0)/ MAP_RES )
             points_x.append(point_x)
             points_y.append(point_y)
-
-            self.map[point_x * int(GLOBAL_SIZE_X / MAP_RES) +  point_y] = 100
+            position_x_map =  int((self.position[0] - GLOBAL_SIZE_X / 2.0)/ MAP_RES )
+            position_y_map =  int((self.position[1] - GLOBAL_SIZE_Y / 2.0)/ MAP_RES )
+            for line_x, line_y in bresenham(position_x_map, position_y_map, point_x, point_y):
+                 self.map[line_y * int(GLOBAL_SIZE_X / MAP_RES) +  line_x] = 0
+            self.map[point_y * int(GLOBAL_SIZE_X / MAP_RES) +  point_x] = 100
 
         msg = OccupancyGrid()
         msg.header.stamp = self.get_clock().now().to_msg()
@@ -105,7 +109,6 @@ class SimpleMapper(Node):
             data.append(self.rot(roll, pitch, yaw, o, back))
 
         return data
-
 
     def rot(self, roll, pitch, yaw, origin, point):
             cosr = math.cos((roll))
