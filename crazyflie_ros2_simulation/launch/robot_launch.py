@@ -12,7 +12,7 @@ def generate_launch_description():
     robot_description = pathlib.Path(os.path.join(package_dir, 'resource', 'crazyflie.urdf')).read_text()
 
     webots = WebotsLauncher(
-        world=os.path.join(package_dir, 'worlds', 'crazyflie.wbt')
+        world=os.path.join(package_dir, 'worlds', 'crazyflie_apartment.wbt')
     )
 
     my_robot_driver = Node(
