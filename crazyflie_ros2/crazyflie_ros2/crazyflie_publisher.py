@@ -45,6 +45,22 @@ class CrazyfliePublisher(Node):
         self._cf.connection_lost.add_callback(self._connection_lost)
         self._cf.open_link(link_uri)
 
+        timer_period = 0.1  # seconds
+        self.timer = self.create_timer(timer_period, self.sendHoverCommand)
+
+        self.hover = {'x': 0.0, 'y': 0.0, 'z': 0.0, 'yaw': 0.0, 'height': 0.3}
+        self._cf.commander.send_hover_setpoint(
+            self.hover['x'], self.hover['y'], self.hover['yaw'],
+            self.hover['height'])
+
+    def sendHoverCommand(self):
+        hover_height =  self.hover['height'] + self.hover['z']*0.1
+        self._cf.commander.send_hover_setpoint(
+            self.hover['x'], self.hover['y'], self.hover['yaw'],
+            hover_height)
+        self.hover['height'] = hover_height
+
+
     def _connected(self, link_uri):
 
         self.get_logger().info('Connected!')
@@ -142,6 +158,13 @@ class CrazyfliePublisher(Node):
 
     def cmd_vel_callback(self, twist):
         self.target_twist = twist
+
+        self.hover['x'] = twist.linear.x
+        self.hover['y'] = twist.linear.y
+        self.hover['z'] = twist.linear.z
+        self.hover['yaw'] =  math.degrees(twist.angular.z)
+        
+
 
     def _stab_log_error(self, logconf, msg):
         """Callback from the log API when an error occurs"""
