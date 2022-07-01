@@ -47,7 +47,9 @@ You will need an [STEM ranging bundle](https://store.bitcraze.io/collections/bun
 - ~~Make crazyflie_ros2_slam node starting with the slam_toolbox's parameters~~
 - ~~Connect crazyflie_ros node to the crazyflie_ros2_node and generate an map with Rviz (needs tuning in simulation first~~
 - ~~Make crazyflie_ros2_simulation package with Webots~~
-- Turn the[ multiranger pointcloud](https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/multiranger/multiranger_pointcloud.py) example into a rosnode equivalent (crazyflie_ros2_simple_map)
+- ~~Turn the[ multiranger pointcloud](https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/multiranger/multiranger_pointcloud.py) example into a rosnode equivalent (crazyflie_ros2_simple_map)~~
+- ~~Have simulator run in simple mappingnode~~
+- Have real crazyflie fly in simple mapper node
 - Connect webots simulation to the SLAM toolbox
 - In Simulation tune the SLAM toolbox to work for 4 laser rangers (if possible)
 - If tunable, try out on real crazyflie + multiranger

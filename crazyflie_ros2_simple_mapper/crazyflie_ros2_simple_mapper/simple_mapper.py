@@ -13,8 +13,8 @@ import math
 import numpy as np
 from bresenham import bresenham
 
-GLOBAL_SIZE_X = 8.0
-GLOBAL_SIZE_Y = 8.0
+GLOBAL_SIZE_X = 20.0
+GLOBAL_SIZE_Y = 20.0
 MAP_RES = 0.1
 
 class SimpleMapper(Node):
@@ -37,6 +37,8 @@ class SimpleMapper(Node):
         t_map.transform.translation.z = 0.0
         self.tfbr.sendTransform(t_map)
 
+        self.position_update = False
+
         self.map = [-1] * int(GLOBAL_SIZE_X / MAP_RES) * int(GLOBAL_SIZE_Y / MAP_RES)
         self.map_publisher = self.create_publisher(OccupancyGrid, '/map',
             qos_profile=QoSProfile( depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL, history=HistoryPolicy.KEEP_LAST,))
@@ -50,6 +52,7 @@ class SimpleMapper(Node):
         self.angles[0] = euler[0]
         self.angles[1] = euler[1]
         self.angles[2] = euler[2]
+        self.position_update = True
 
     def scan_subsribe_callback(self, msg):
         self.ranges = msg.ranges
@@ -59,6 +62,8 @@ class SimpleMapper(Node):
         points_x = []
         points_y = []
         #
+        if self.position_update is False:
+            return
         for i in range(len(data)):
             point_x = int((data[i][0] - GLOBAL_SIZE_X / 2.0)/ MAP_RES )
             point_y = int((data[i][1] - GLOBAL_SIZE_Y / 2.0)/ MAP_RES )
@@ -67,7 +72,7 @@ class SimpleMapper(Node):
             position_x_map =  int((self.position[0] - GLOBAL_SIZE_X / 2.0)/ MAP_RES )
             position_y_map =  int((self.position[1] - GLOBAL_SIZE_Y / 2.0)/ MAP_RES )
             for line_x, line_y in bresenham(position_x_map, position_y_map, point_x, point_y):
-                 self.map[line_y * int(GLOBAL_SIZE_X / MAP_RES) +  line_x] = 0
+                self.map[line_y * int(GLOBAL_SIZE_X / MAP_RES) +  line_x] = 0
             self.map[point_y * int(GLOBAL_SIZE_X / MAP_RES) +  point_x] = 100
 
         msg = OccupancyGrid()
