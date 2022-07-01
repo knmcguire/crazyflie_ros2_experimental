@@ -7,9 +7,7 @@ This is my Bitcraze Summer project of 2022! Purpose: To use ROS2 to implement SL
 
 This is very much in progress but I'm excited to work on this and very confident that this will work at the end. Also this is a good opertunity for me to show an ROS2 implementation of a new platform from scratch, so why not start with the Crazyflie :)
 
-## Current Status
 
-[![video]](https://youtu.be/_naBMmCv868)  
 
 ## Goal
 
@@ -23,12 +21,17 @@ But no seriously, I hope to at least get the SLAM mapping toolbox to work by the
 
 For now this project is on my personal github repo for now and once there is something solid working it will be probably transfered to the [Bitcraze Github organization](https://github.com/bitcraze/).
 
+## Current Status
+
+Check this video
+[![video](video_screenshot.png)](https://youtu.be/_naBMmCv868)  
 
 ## Explanation per package
 - crazyflie_ros2: The Crazyflie package that has contact with the Crazyflie directly and publishes the transforms
 - crazyflie_ros2_description: The package that handles the RVIZ screen and also includes meshes if necessary
 - crazyflie_ros2_simulation: A webots simulator world and ROS node controller (based on the experimental [bitcraze simulation repo](https://github.com/bitcraze/crazyflie-simulation))
 - crazyflie_ros2_slam: Using an existing SLAM toolbox to create a map
+- crazyflie_ros2_simple_mapper: An own made simple mapper functionality for multirangers and flowdeckbased odometry
 - ... more to come (check [planning](#planning))
 
 
