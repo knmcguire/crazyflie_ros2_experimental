@@ -7,6 +7,9 @@ This is my Bitcraze Summer project of 2022! Purpose: To use ROS2 to implement SL
 
 This is very much in progress but I'm excited to work on this and very confident that this will work at the end. Also this is a good opertunity for me to show an ROS2 implementation of a new platform from scratch, so why not start with the Crazyflie :)
 
+## Current Status
+
+[![video]](https://youtu.be/_naBMmCv868)  
 
 ## Goal
 
