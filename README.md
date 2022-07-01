@@ -23,6 +23,8 @@ For now this project is on my personal github repo for now and once there is som
 
 ## Current Status
 
+Currently the simple_mapper node works on a real crazyflie what is controllable through twist messages.
+
 Check this video
 [![video](video_screenshot.png)](https://youtu.be/_naBMmCv868)  
 
@@ -37,15 +39,36 @@ Check this video
 
 ## How to run
 
-Still very experimental and not ready yet!
+_Still very experimental and not ready yet!_
 
-### Real Crazyflie with Slam toolbox (no control)
+First go to your development workspace and run:
+
+    source /opt/ros/galactic/local_setup.bash
+    colcon build
+    source install/setup.bash
+
+
+### Real Crazyflie with simple mapper
 You will need an [STEM ranging bundle](https://store.bitcraze.io/collections/bundles/products/stem-ranging-bundle) for this...
 
-    ros2 launch crazyflie_ros2_slam slam_toolbox_mapping_launch.py 
+    ros2 launch crazyflie_ros2_simple_mapper simple_mapper_real_launch.py 
 
-### Simulated Crazyflie (no SLAM yet)
-    ros2 launch crfazyflie_ros2_simulation robot_launch.py
+### Simulated Crazyflie with simple mapper
+First install [webots 2022a](https://www.cyberbotics.com/)
+
+    ros2 launch crazyflie_ros2_simple_mapper simple_mapper_simulation_launch.py 
+
+### RVIZ2 + Control
+
+Start RVIZ2 by typing
+
+    rviz2
+    
+and select the map visualization
+
+You can control both the simulated and real crazyflie with twist messages:
+
+    ros2 run teleop_twist_keyboard teleop_twist_keyboard
 
 ## Planning
 - ~~Make a publish ROS2 node for crazyflie (with [cflib](https://github.com/bitcraze/crazyflie-lib-python)) to publish pose and transform~~
