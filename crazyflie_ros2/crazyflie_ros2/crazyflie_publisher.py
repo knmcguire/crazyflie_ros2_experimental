@@ -8,16 +8,19 @@ from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
 from sensor_msgs.msg import Range
 from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Twist
 
 import cflib.crtp  # noqa
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 from cflib.utils import uri_helper
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
+from cflib.positioning.motion_commander import MotionCommander
 
 import math
 
-uri = uri_helper.uri_from_env(default='radio://0/40/2M/E7E7E7E703')
+URI = uri_helper.uri_from_env(default='radio://0/40/2M/E7E7E7E703')
 
 def radians(degrees):  
     return degrees * math.pi / 180.0;
@@ -26,12 +29,14 @@ class CrazyfliePublisher(Node):
 
     def __init__(self, link_uri):
         super().__init__('crazyflie_publisher')
-        self.pose_publisher = self.create_publisher(Pose, 'pose', 10)
+        #self.pose_publisher = self.create_publisher(Pose, 'pose', 10)
         self.range_publisher = self.create_publisher(Range, 'zrange', 10)
         self.laser_publisher = self.create_publisher(LaserScan, 'scan', 10)
-        
-        self.tfbr = TransformBroadcaster(self)
+        self.odom_publisher = self.create_publisher(Odometry, 'odom', 10)
+    
+        self.create_subscription(Twist, 'cmd_vel', self.cmd_vel_callback, 1)
 
+        self.tfbr = TransformBroadcaster(self)
 
         self._cf = Crazyflie(rw_cache='./cache')
         self._cf.connected.add_callback(self._connected)
@@ -41,7 +46,8 @@ class CrazyfliePublisher(Node):
         self._cf.open_link(link_uri)
 
     def _connected(self, link_uri):
-        print('connected')
+
+        self.get_logger().info('Connected!')
         self._lg_stab = LogConfig(name='Stabilizer', period_in_ms=100)
         self._lg_stab.add_variable('stateEstimate.x', 'float')
         self._lg_stab.add_variable('stateEstimate.y', 'float')
@@ -56,7 +62,6 @@ class CrazyfliePublisher(Node):
         self._lg_range.add_variable('range.right', 'uint16_t')
         self._lg_range.add_variable('range.left', 'uint16_t')
         self._lg_range.add_variable('range.back', 'uint16_t')
-
 
         try:
             self._cf.log.add_config(self._lg_stab)
@@ -135,7 +140,8 @@ class CrazyfliePublisher(Node):
         msg.angle_increment = math.pi/2
         self.laser_publisher.publish(msg)
 
-
+    def cmd_vel_callback(self, twist):
+        self.target_twist = twist
 
     def _stab_log_error(self, logconf, msg):
         """Callback from the log API when an error occurs"""
@@ -143,10 +149,12 @@ class CrazyfliePublisher(Node):
 
     def _stab_log_data(self, timestamp, data, logconf):
         """Callback from a the log API when data arrives"""
-        for name, value in data.items():
+
+        """for name, value in data.items():
             print(f'{name}: {value:3.3f} ', end='')
-        print()
-        msg = Pose()
+        print()"""
+
+        msg = Odometry()
 
         x = data.get('stateEstimate.x')
         y = data.get('stateEstimate.y')
@@ -154,15 +162,15 @@ class CrazyfliePublisher(Node):
         roll = radians(data.get('stabilizer.roll'))
         pitch = radians(-1.0 * data.get('stabilizer.pitch'))
         yaw = radians(data.get('stabilizer.yaw'))
-        msg.position.x = x
-        msg.position.y = y
-        msg.position.z = z
+        msg.pose.pose.position.x = x
+        msg.pose.pose.position.y = y
+        msg.pose.pose.position.z = z
         q = tf_transformations.quaternion_from_euler(roll, pitch, yaw)
-        msg.orientation.x = q[0]
-        msg.orientation.y = q[1]
-        msg.orientation.z = q[2]
-        msg.orientation.w = q[3]
-        self.pose_publisher.publish(msg)
+        msg.pose.pose.orientation.x = q[0]
+        msg.pose.pose.orientation.y = q[1]
+        msg.pose.pose.orientation.z = q[2]
+        msg.pose.pose.orientation.w = q[3]
+        self.odom_publisher.publish(msg)
 
 
         q_base = tf_transformations.quaternion_from_euler(0, 0, yaw)
@@ -216,12 +224,13 @@ def main(args=None):
 
     rclpy.init(args=args)
 
-    crazyflie_publisher = CrazyfliePublisher(uri)
+    crazyflie_publisher = CrazyfliePublisher(URI)
 
     rclpy.spin(crazyflie_publisher)
 
     crazyflie_publisher.destroy_node()
     rclpy.shutdown()
+    
 
 
 
