@@ -5,6 +5,8 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 
 def generate_launch_description():
@@ -31,10 +33,19 @@ def generate_launch_description():
         name='slam_toolbox',
         output='screen')
 
+    pkg_share = get_package_share_directory('crazyflie_ros2_simulation')
+
+    simulation_node = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(pkg_share, 'launch', 'robot_launch.py')
+            )
+        )
+
     ld = LaunchDescription()
 
     ld.add_action(declare_use_sim_time_argument)
     ld.add_action(declare_slam_params_file_cmd)
     ld.add_action(start_async_slam_toolbox_node)
+    ld.add_action(simulation_node)
 
     return ld

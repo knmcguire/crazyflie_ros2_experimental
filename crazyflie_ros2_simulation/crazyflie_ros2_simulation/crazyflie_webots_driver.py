@@ -94,7 +94,7 @@ class CrazyflieWebotsDriver:
 
         msg = LaserScan()
         msg.header.stamp = self.node.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_crazyflie'
+        msg.header.frame_id = 'base_link'
         msg.range_min = 0.01
         msg.range_max = 1.99
         msg.ranges = [front_range, left_range, back_range, right_range]

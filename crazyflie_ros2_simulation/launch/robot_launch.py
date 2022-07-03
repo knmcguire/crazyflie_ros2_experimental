@@ -20,13 +20,33 @@ def generate_launch_description():
         executable='driver',
         output='screen',
         parameters=[
-            {'robot_description': robot_description},
+            {'robot_description': robot_description,
+             'use_sim_time': True,
+             'set_robot_state_publisher': True},
         ]
+    )
+
+    robot_state_publisher = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        parameters=[{
+            'robot_description': '<robot name=""><link name=""/></robot>'
+        }],
+    )
+
+    odom_publisher = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        output='screen',
+        arguments=['0', '0', '0', '0', '0', '0', 'odom', 'base_link'],
     )
 
     return LaunchDescription([
         webots,
         my_robot_driver,
+        robot_state_publisher,
+        odom_publisher,
         launch.actions.RegisterEventHandler(
             event_handler=launch.event_handlers.OnProcessExit(
                 target_action=webots,
