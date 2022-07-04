@@ -1,3 +1,9 @@
+""" This simple mapper is loosely based on both the bitcraze cflib point cloud example 
+ https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/multiranger/multiranger_pointcloud.py
+ and the webots epuck simple mapper example:
+ https://github.com/cyberbotics/webots_ros2
+ """
+
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile
