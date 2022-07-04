@@ -46,7 +46,7 @@ def generate_launch_description():
         webots,
         my_robot_driver,
         robot_state_publisher,
-        odom_publisher,
+        #odom_publisher,
         launch.actions.RegisterEventHandler(
             event_handler=launch.event_handlers.OnProcessExit(
                 target_action=webots,

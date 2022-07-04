@@ -8,6 +8,8 @@ from nav_msgs.msg import Odometry
 from math import cos, sin, degrees, radians, pi
 import sys
 import tf_transformations
+from tf2_ros import TransformBroadcaster
+from geometry_msgs.msg import TransformStamped
 
 # Change this path to your crazyflie-firmware folder
 sys.path.append('/home/knmcguire/Development/bitcraze/c/crazyflie-firmware')
@@ -65,6 +67,8 @@ class CrazyflieWebotsDriver:
         self.laser_publisher = self.node.create_publisher(LaserScan, 'scan', 10)
         self.odom_publisher = self.node.create_publisher(Odometry, 'odom', 10)
 
+        self.tfbr = TransformBroadcaster(self.node)
+
     def cmd_vel_callback(self, twist):
         self.target_twist = twist
     
@@ -80,9 +84,9 @@ class CrazyflieWebotsDriver:
         roll_rate = self.gyro.getValues()[0]
         pitch_rate = self.gyro.getValues()[1]
         yaw_rate = self.gyro.getValues()[2]
-        x_global = self.gps.getValues()[0]
+        x_global = self.gps.getValues()[0] + 1.5
         vx_global = (x_global - self.past_x_global)/dt
-        y_global = self.gps.getValues()[1]
+        y_global = self.gps.getValues()[1] + 2.5
         vy_global = (y_global - self.past_y_global)/dt
         z_global = self.gps.getValues()[2]
         vz_global = (z_global - self.past_z_global)/dt
@@ -103,19 +107,36 @@ class CrazyflieWebotsDriver:
         msg.angle_increment = pi/2
         self.laser_publisher.publish(msg)
 
-        q_base = tf_transformations.quaternion_from_euler(roll, pitch, yaw)
+        q_base = tf_transformations.quaternion_from_euler(0, 0, yaw)
         odom = Odometry()
         odom.header.stamp = self.node.get_clock().now().to_msg()
         odom.header.frame_id = 'odom'
         odom.child_frame_id = 'base_link'
         odom.pose.pose.position.x = x_global
         odom.pose.pose.position.y = y_global
-        odom.pose.pose.position.z = z_global
-        odom.pose.pose.orientation.x = q_base[0]
-        odom.pose.pose.orientation.y = q_base[1]
-        odom.pose.pose.orientation.z = q_base[2]
-        odom.pose.pose.orientation.w = q_base[3]
+        odom.pose.pose.position.z = 0.0
+        #odom.pose.pose.orientation.x = q_base[0]
+        #odom.pose.pose.orientation.y = q_base[1]
+        #odom.pose.pose.orientation.z = q_base[2]
+        #odom.pose.pose.orientation.w = q_base[3]
+        odom.pose.pose.orientation.z = sin(yaw / 2)
+        odom.pose.pose.orientation.w = cos(yaw / 2)
         self.odom_publisher.publish(odom)
+
+        t_base = TransformStamped()
+        t_base.header.stamp = self.node.get_clock().now().to_msg()
+        t_base.header.frame_id = 'odom'
+        t_base.child_frame_id = 'base_link'
+        t_base.transform.translation.x = x_global
+        t_base.transform.translation.y = y_global
+        t_base.transform.translation.z = 0.0
+        #t_base.transform.rotation.x = q_base[0]
+        #t_base.transform.rotation.y = q_base[1]
+        #t_base.transform.rotation.z = q_base[2]
+        #t_base.transform.rotation.w = q_base[3]
+        t_base.transform.rotation.z = sin(0.0 / 2)
+        t_base.transform.rotation.w = cos(0.0 / 2)
+        self.tfbr.sendTransform(t_base)
 
         ## Put measurement in state estimate
         # TODO replace these with a EKF python binding
