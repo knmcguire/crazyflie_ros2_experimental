@@ -41,8 +41,6 @@ Check this video
 
 ## How to run
 
-_Still very experimental and not ready yet!_
-
 First go to your development workspace and run:
 
     source /opt/ros/galactic/local_setup.bash
@@ -85,6 +83,7 @@ You can control both the simulated and real crazyflie with twist messages:
 - In Simulation tune the SLAM toolbox to work for 4 laser rangers (if possible)
 - If tunable, try out on real crazyflie + multiranger
 - Make a NAV2 package that can do something with the map
+- Make 3d mapping vizualization 
 - Implement wall following?
 - If available, use python bindings of the Crazyflie's onboard EKF 
 - Try out new multi-zone multiranger deck
