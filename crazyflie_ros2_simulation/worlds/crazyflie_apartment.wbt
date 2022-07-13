@@ -6,8 +6,8 @@ WorldInfo {
   basicTimeStep 16
 }
 Viewpoint {
-  orientation -0.37786562951562563 0.3778669510835151 0.8452420560464371 1.7381460101480652
-  position -3.8799641179062228 -10.516897401798685 9.280445281615766
+  orientation -0.42771745788929055 0.3247600314935339 0.8435571694681054 2.197882768297313
+  position -1.4604592451351859 -6.641647109807285 6.065198632540694
   exposure 0.5
 }
 TexturedBackground {
@@ -500,6 +500,13 @@ Television {
 Robot {
   translation -1.61 -2.11 0.015
   children [
+#    Lidar {
+#      numberOfLayers 1
+#      maxRange 4.0
+#      horizontalResolution 660
+#      fieldOfView 3.14
+#      name "lidar"
+#    }
     DEF Multiranger Transform {
       translation 0 0 0.02
       children [

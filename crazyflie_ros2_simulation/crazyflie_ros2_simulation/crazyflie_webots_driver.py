@@ -53,6 +53,9 @@ class CrazyflieWebotsDriver:
         self.range_right = self.robot.getDevice("range_right")
         self.range_right.enable(timestep)
 
+        #self.lidar = self.robot.getDevice("lidar")
+        #self.lidar.enable(timestep)
+
         ## Intialize Variables
         self.past_x_global = 0
         self.past_y_global = 0
@@ -102,10 +105,24 @@ class CrazyflieWebotsDriver:
         msg.range_min = 0.01
         msg.range_max = 1.99
         msg.ranges = [front_range, left_range, back_range, right_range]
-        msg.angle_min = 0.0
-        msg.angle_max = 2*pi
+        msg.angle_min = -0.5 * 2*pi
+        msg.angle_max =  0.5 * 2*pi
         msg.angle_increment = pi/2
         self.laser_publisher.publish(msg)
+
+        '''ranges = self.lidar.getLayerRangeImage(0)
+        if ranges:
+            msg = LaserScan()
+            msg.header.stamp = self.node.get_clock().now().to_msg()
+            msg.header.frame_id = 'base_link'
+            msg.angle_min = -0.5 * self.lidar.getFov()
+            msg.angle_max = 0.5 * self.lidar.getFov()
+            msg.angle_increment = self.lidar.getFov() / (self.lidar.getHorizontalResolution() - 1)
+            msg.scan_time = self.lidar.getSamplingPeriod() / 1000.0
+            msg.range_min = self.lidar.getMinRange() 
+            msg.range_max = self.lidar.getMaxRange()
+            msg.ranges = ranges
+            self.laser_publisher.publish(msg)'''
 
         q_base = tf_transformations.quaternion_from_euler(0, 0, yaw)
         odom = Odometry()
@@ -115,12 +132,14 @@ class CrazyflieWebotsDriver:
         odom.pose.pose.position.x = x_global
         odom.pose.pose.position.y = y_global
         odom.pose.pose.position.z = 0.0
+
         #odom.pose.pose.orientation.x = q_base[0]
         #odom.pose.pose.orientation.y = q_base[1]
         #odom.pose.pose.orientation.z = q_base[2]
         #odom.pose.pose.orientation.w = q_base[3]
         odom.pose.pose.orientation.z = sin(yaw / 2)
         odom.pose.pose.orientation.w = cos(yaw / 2)
+
         self.odom_publisher.publish(odom)
 
         t_base = TransformStamped()
@@ -134,8 +153,8 @@ class CrazyflieWebotsDriver:
         #t_base.transform.rotation.y = q_base[1]
         #t_base.transform.rotation.z = q_base[2]
         #t_base.transform.rotation.w = q_base[3]
-        t_base.transform.rotation.z = sin(0.0 / 2)
-        t_base.transform.rotation.w = cos(0.0 / 2)
+        t_base.transform.rotation.z = sin(yaw / 2)
+        t_base.transform.rotation.w = cos(yaw / 2)
         self.tfbr.sendTransform(t_base)
 
         ## Put measurement in state estimate
