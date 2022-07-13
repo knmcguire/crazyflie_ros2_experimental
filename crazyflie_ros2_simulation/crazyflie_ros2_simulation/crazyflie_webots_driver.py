@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.time import Time
 
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
@@ -72,6 +73,37 @@ class CrazyflieWebotsDriver:
 
         self.tfbr = TransformBroadcaster(self.node)
 
+        self.msg_laser = LaserScan()
+        self.node.create_timer(1.0/6.0, self.publish_laserscan_data)
+
+    def publish_laserscan_data(self):
+
+        front_range = self.range_front.getValue()/1000.0
+
+        back_range = self.range_back.getValue()/1000.0
+        left_range = self.range_left.getValue()/1000.0
+        right_range = self.range_right.getValue()/1000.0
+        max_range = 3.49
+        if front_range > max_range:
+            front_range = float("inf")
+        if left_range > max_range:
+            left_range = float("inf")
+        if right_range > max_range:
+            right_range = float("inf")
+        if back_range > max_range:
+            back_range = float("inf")  
+
+        self.msg_laser = LaserScan()
+        self.msg_laser.header.stamp = Time(seconds=self.robot.getTime()).to_msg()
+        self.msg_laser.header.frame_id = 'base_link'
+        self.msg_laser.range_min = 0.1
+        self.msg_laser.range_max = max_range
+        self.msg_laser.ranges = [back_range, left_range, front_range, right_range, back_range]
+        self.msg_laser.angle_min = 0.5 * 2*pi
+        self.msg_laser.angle_max =  -0.5 * 2*pi
+        self.msg_laser.angle_increment = -1.0*pi/2
+        self.laser_publisher.publish(self.msg_laser)
+
     def cmd_vel_callback(self, twist):
         self.target_twist = twist
     
@@ -94,56 +126,50 @@ class CrazyflieWebotsDriver:
         z_global = self.gps.getValues()[2]
         vz_global = (z_global - self.past_z_global)/dt
 
-        front_range = self.range_front.getValue()/1000.0
-        back_range = self.range_back.getValue()/1000.0
-        left_range = self.range_left.getValue()/1000.0
-        right_range = self.range_right.getValue()/1000.0
 
-        msg = LaserScan()
-        msg.header.stamp = self.node.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_link'
-        msg.range_min = 0.01
-        msg.range_max = 1.99
-        msg.ranges = [front_range, left_range, back_range, right_range]
-        msg.angle_min = -0.5 * 2*pi
-        msg.angle_max =  0.5 * 2*pi
-        msg.angle_increment = pi/2
-        self.laser_publisher.publish(msg)
 
-        '''ranges = self.lidar.getLayerRangeImage(0)
+
+
+
+
+        '''
+        ranges = self.lidar.getLayerRangeImage(0)
         if ranges:
             msg = LaserScan()
             msg.header.stamp = self.node.get_clock().now().to_msg()
-            msg.header.frame_id = 'base_link'
-            msg.angle_min = -0.5 * self.lidar.getFov()
-            msg.angle_max = 0.5 * self.lidar.getFov()
-            msg.angle_increment = self.lidar.getFov() / (self.lidar.getHorizontalResolution() - 1)
-            msg.scan_time = self.lidar.getSamplingPeriod() / 1000.0
+            msg.header.frame_id = 'base_link_rotated'
+            msg.angle_min = -0.5 * pi
+            msg.angle_max = 0.5 * pi
+            msg.angle_increment = pi / (self.lidar.getHorizontalResolution() - 1)
+            #msg.scan_time = self.lidar.getSamplingPeriod() / 1000.0
             msg.range_min = self.lidar.getMinRange() 
             msg.range_max = self.lidar.getMaxRange()
             msg.ranges = ranges
-            self.laser_publisher.publish(msg)'''
+           # self.laser_publisher.publish(msg)
+            ##print(self.lidar.getFov())
+            #print(ranges)'''
 
-        q_base = tf_transformations.quaternion_from_euler(0, 0, yaw)
+
+        q_base = tf_transformations.quaternion_from_euler(0, 0, -1*yaw)
         odom = Odometry()
-        odom.header.stamp = self.node.get_clock().now().to_msg()
+        odom.header.stamp = Time(seconds=self.robot.getTime()).to_msg()
         odom.header.frame_id = 'odom'
         odom.child_frame_id = 'base_link'
         odom.pose.pose.position.x = x_global
         odom.pose.pose.position.y = y_global
         odom.pose.pose.position.z = 0.0
 
-        #odom.pose.pose.orientation.x = q_base[0]
-        #odom.pose.pose.orientation.y = q_base[1]
-        #odom.pose.pose.orientation.z = q_base[2]
-        #odom.pose.pose.orientation.w = q_base[3]
-        odom.pose.pose.orientation.z = sin(yaw / 2)
-        odom.pose.pose.orientation.w = cos(yaw / 2)
+        odom.pose.pose.orientation.x = q_base[0]
+        odom.pose.pose.orientation.y = q_base[1]
+        odom.pose.pose.orientation.z = q_base[2]
+        odom.pose.pose.orientation.w = q_base[3]
+        #odom.pose.pose.orientation.z = sin(yaw / 2)
+        #odom.pose.pose.orientation.w = cos(yaw / 2)
 
         self.odom_publisher.publish(odom)
 
         t_base = TransformStamped()
-        t_base.header.stamp = self.node.get_clock().now().to_msg()
+        t_base.header.stamp = Time(seconds=self.robot.getTime()).to_msg()
         t_base.header.frame_id = 'odom'
         t_base.child_frame_id = 'base_link'
         t_base.transform.translation.x = x_global

@@ -499,23 +499,28 @@ Television {
 }
 Robot {
   translation -1.61 -2.11 0.015
+  selfCollision FALSE
+  synchronization TRUE
   children [
-#    Lidar {
-#      numberOfLayers 1
-#      maxRange 4.0
-#      horizontalResolution 660
-#      fieldOfView 3.14
-#      name "lidar"
-#    }
+    Lidar {
+    horizontalResolution 5
+    fieldOfView 6.28318
+    numberOfLayers 1
+    near 0.07
+    minRange 0.12
+    maxRange 3.5
+      name "lidar"
+      spherical TRUE
+    }
     DEF Multiranger Transform {
-      translation 0 0 0.02
+      translation 0.0 0 0.02
       children [
         DistanceSensor {
           rotation 0 0 1 -1.57
           name "range_right"
           lookupTable [
             0 0 0
-            2 2000 0
+            2 3500 0
           ]
         }
         DistanceSensor {
@@ -523,7 +528,7 @@ Robot {
           name "range_back"
           lookupTable [
             0 0 0
-            2 2000 0
+            2 3500 0
           ]
         }
         DistanceSensor {
@@ -531,14 +536,14 @@ Robot {
           name "range_left"
           lookupTable [
             0 0 0
-            2 2000 0
+            2 3500 0
           ]
         }
         DistanceSensor {
           name "range_front"
           lookupTable [
             0 0 0
-            2 2000 0
+            2 3500 0
           ]
         }
       ]

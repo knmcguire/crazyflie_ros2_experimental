@@ -2,5 +2,14 @@
 <robot name="Crazyflie">
     <webots>
         <plugin type="crazyflie_ros2_simulation.crazyflie_webots_driver.CrazyflieWebotsDriver" />
+        <!--device reference="lidar" type="Lidar">
+            <ros>
+                <enabled>true</enabled>
+                <updateRate>10</updateRate>
+                <topicName>/scan</topicName>
+                <alwaysOn>true</alwaysOn>
+                <frameName>base_link</frameName>
+            </ros>
+        </device-->
     </webots>
 </robot>

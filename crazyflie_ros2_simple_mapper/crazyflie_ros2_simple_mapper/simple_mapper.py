@@ -98,9 +98,9 @@ class SimpleMapper(Node):
         roll = self.angles[0]
         pitch = self.angles[1]
         yaw = self.angles[2]
-        r_front = self.ranges[0]
+        r_back = self.ranges[0]
         r_left = self.ranges[1]
-        r_back = self.ranges[2]
+        r_front = self.ranges[2]
         r_right = self.ranges[3]
 
         if (r_left < self.range_max):

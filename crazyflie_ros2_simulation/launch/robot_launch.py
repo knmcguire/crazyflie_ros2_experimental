@@ -35,18 +35,10 @@ def generate_launch_description():
         }],
     )
 
-    odom_publisher = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        output='screen',
-        arguments=['0', '0', '0', '0', '0', '0', 'odom', 'base_link'],
-    )
-
     return LaunchDescription([
         webots,
         my_robot_driver,
         robot_state_publisher,
-        #odom_publisher,
         launch.actions.RegisterEventHandler(
             event_handler=launch.event_handlers.OnProcessExit(
                 target_action=webots,
