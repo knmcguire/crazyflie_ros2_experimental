@@ -79,8 +79,9 @@ You can control both the simulated and real crazyflie with twist messages:
 - ~~Turn the[ multiranger pointcloud](https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/multiranger/multiranger_pointcloud.py) example into a rosnode equivalent (crazyflie_ros2_simple_map)~~
 - ~~Have simulator run in simple mappingnode~~
 - ~~Have real crazyflie fly in simple mapper node~~
-- Connect webots simulation to the SLAM toolbox
+- ~~Connect webots simulation to the SLAM toolbox~~
 - In Simulation tune the SLAM toolbox to work for 4 laser rangers (if possible)
+- Make node that makes a 360 scan message of a rotating crazyflie
 - If tunable, try out on real crazyflie + multiranger
 - Make a NAV2 package that can do something with the map
 - Make 3d mapping vizualization 
@@ -89,7 +90,7 @@ You can control both the simulated and real crazyflie with twist messages:
 - Try out new multi-zone multiranger deck
 
 ### Issues to solve
-- crazyflie_ros needs to publish odometry messages properly
+-~~ crazyflie_ros needs to publish odometry messages properly~~
 - replace manual crazyflie robot after webot's release
 
 
