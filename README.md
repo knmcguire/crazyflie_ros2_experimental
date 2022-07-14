@@ -46,6 +46,8 @@ Check this video
 
 ## How to run
 
+ROS2 version: Galactic
+
 First go to your development workspace and run:
 
     source /opt/ros/galactic/local_setup.bash
@@ -105,7 +107,7 @@ This crazyflie webots controller uses the python bindings of the crazyflie firmw
 - ~~Have real crazyflie fly in simple mapper node~~
 - ~~Connect webots simulation to the SLAM toolbox~~
 - ~~In Simulation tune the SLAM toolbox to work for 4 laser rangers (if possible)~~
-- If tunable, try out on real crazyflie + multiranger
+- ~~If tunable, try out on real crazyflie + multiranger~~ -> doesn't work as I hoped.
 - Make node that makes a 360 scan message of a rotating crazyflie
 - Connect 360 scan with slamtoolbox and see if it improves things
 - Try NAV2 on simple mapper node
@@ -117,6 +119,7 @@ This crazyflie webots controller uses the python bindings of the crazyflie firmw
 ### Issues to solve
 - ~~crazyflie_ros needs to publish odometry messages properly~~
 - replace manual crazyflie robot after webot's release to 2022b
+- Action can not handle multiple threads so topic handling is not great. Should fix with this: https://answers.ros.org/question/356434/ros-2-actionserver-callback-causes-subscriber-to-stop-receiving/
 
 
 
