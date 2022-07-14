@@ -27,8 +27,13 @@ For now this project is on my personal github repo for now and once there is som
 
 Currently the simple_mapper node works on a real crazyflie what is controllable through twist messages.
 
+### SLAM toolbox on Crazyflie
+_Video coming soon_
+
+### Simple mapper on Crazyflie
 Check this video
 [![video](video_screenshot.png)](https://youtu.be/_naBMmCv868)  
+
 
 ## Explanation per package
 - crazyflie_ros2: The Crazyflie package that has contact with the Crazyflie directly and publishes the transforms
@@ -47,17 +52,6 @@ First go to your development workspace and run:
     colcon build
     source install/setup.bash
 
-
-### Real Crazyflie with simple mapper
-You will need an [STEM ranging bundle](https://store.bitcraze.io/collections/bundles/products/stem-ranging-bundle) for this...
-
-    ros2 launch crazyflie_ros2_simple_mapper simple_mapper_real_launch.py 
-
-### Simulated Crazyflie with simple mapper
-First install [webots 2022a](https://www.cyberbotics.com/)
-
-    ros2 launch crazyflie_ros2_simple_mapper simple_mapper_simulation_launch.py 
-
 ### RVIZ2 + Control
 
 Start RVIZ2 by typing
@@ -70,6 +64,36 @@ You can control both the simulated and real crazyflie with twist messages:
 
     ros2 run teleop_twist_keyboard teleop_twist_keyboard
 
+
+### Real Crazyflie
+You will need an [STEM ranging bundle](https://store.bitcraze.io/collections/bundles/products/stem-ranging-bundle) for this.
+
+Both these nodes will make the Crazyflie take off right away
+#### Real Crazyflie with simple mapper
+
+    ros2 launch crazyflie_ros2_simple_mapper simple_mapper_real_launch.py 
+#### Real Crazyflie with SlamToolbox
+
+    ros2 launch crazyflie_ros2_slam slam_toolbox_real_launch.py 
+
+### Simulated Crazyflie
+
+First install [webots 2022a](https://www.cyberbotics.com/)
+
+
+This crazyflie webots controller uses the python bindings of the crazyflie firmware. Replace this line in crazyflie_ros2_simulation/crazyflie_ros2_simulation/crazyflie_webots_driver.py with the location of your [crazyflie-firmware](https://github.com/bitcraze/crazyflie-firmware) repo and do `make binding_pythons`:
+
+    sys.path.append('/home/knmcguire/Development/bitcraze/c/crazyflie-firmware')
+    import cffirmware
+    
+#### Simulated Crazyflie with simple mapper
+
+    ros2 launch crazyflie_ros2_simple_mapper simple_mapper_simulation_launch.py 
+
+#### Simulated Crazyflie with SlamToolbox
+    ros2 launch crazyflie_ros2_slam slam_toolbox_simulation_launch.py 
+
+
 ## Planning
 - ~~Make a publish ROS2 node for crazyflie (with [cflib](https://github.com/bitcraze/crazyflie-lib-python)) to publish pose and transform~~
 - ~~Make crazyflie description package with RVIZ visualization file and crazyfie robot mesh~~
@@ -80,18 +104,19 @@ You can control both the simulated and real crazyflie with twist messages:
 - ~~Have simulator run in simple mappingnode~~
 - ~~Have real crazyflie fly in simple mapper node~~
 - ~~Connect webots simulation to the SLAM toolbox~~
-- In Simulation tune the SLAM toolbox to work for 4 laser rangers (if possible)
-- Make node that makes a 360 scan message of a rotating crazyflie
+- ~~In Simulation tune the SLAM toolbox to work for 4 laser rangers (if possible)~~
 - If tunable, try out on real crazyflie + multiranger
-- Make a NAV2 package that can do something with the map
+- Make node that makes a 360 scan message of a rotating crazyflie
+- Connect 360 scan with slamtoolbox and see if it improves things
+- Try NAV2 on simple mapper node
 - Make 3d mapping vizualization 
 - Implement wall following?
 - If available, use python bindings of the Crazyflie's onboard EKF 
 - Try out new multi-zone multiranger deck
 
 ### Issues to solve
--~~ crazyflie_ros needs to publish odometry messages properly~~
-- replace manual crazyflie robot after webot's release
+- ~~crazyflie_ros needs to publish odometry messages properly~~
+- replace manual crazyflie robot after webot's release to 2022b
 
 
 

@@ -42,20 +42,11 @@ def generate_launch_description():
         )
 
 
-    rviz = Node(
-        package='rviz2',
-        executable='rviz2',
-        output='screen',
-        parameters=[{'use_sim_time': use_sim_time}],
-    )
-
-
     ld = LaunchDescription()
 
     ld.add_action(declare_use_sim_time_argument)
     ld.add_action(declare_slam_params_file_cmd)
     ld.add_action(start_async_slam_toolbox_node)
     ld.add_action(crazyflie_node)
-    ld.add_action(rviz)
 
     return ld
