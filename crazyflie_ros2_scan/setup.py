@@ -20,6 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'range_to_lidar = crazyflie_ros2_scan.range_to_lidar:main'
+
         ],
     },
 )

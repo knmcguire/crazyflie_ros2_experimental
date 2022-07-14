@@ -7,6 +7,10 @@
   <maintainer email="kimberly@bitcraze.io">knmcguire</maintainer>
   <license>TODO: License declaration</license>
 
+  <depend>rclpy</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
+
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
