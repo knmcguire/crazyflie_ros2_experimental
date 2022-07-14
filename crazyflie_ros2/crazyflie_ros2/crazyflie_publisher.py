@@ -20,6 +20,8 @@ from cflib.positioning.motion_commander import MotionCommander
 
 import math
 
+from math import pi
+
 URI = uri_helper.uri_from_env(default='radio://0/40/2M/E7E7E7E703')
 
 def radians(degrees):  
@@ -46,12 +48,28 @@ class CrazyfliePublisher(Node):
         self._cf.open_link(link_uri)
 
         timer_period = 0.1  # seconds
-        self.timer = self.create_timer(timer_period, self.sendHoverCommand)
+        self.create_timer(timer_period, self.sendHoverCommand)
+        self.ranges= [0.0, 0.0, 0.0, 0.0, 0.0]
+        self.create_timer(1.0/6.0, self.publish_laserscan_data)
 
         self.hover = {'x': 0.0, 'y': 0.0, 'z': 0.0, 'yaw': 0.0, 'height': 0.3}
         self._cf.commander.send_hover_setpoint(
             self.hover['x'], self.hover['y'], self.hover['yaw'],
             self.hover['height'])
+
+    def publish_laserscan_data(self):
+
+        msg = LaserScan()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'base_link'
+        msg.range_min = 0.01
+        msg.range_max = 3.5
+        msg.ranges = self.ranges
+        msg.angle_min = 0.5 * 2*pi
+        msg.angle_max =  -0.5 * 2*pi
+        msg.angle_increment = -1.0*pi/2
+        self.laser_publisher.publish(msg)
+
 
     def sendHoverCommand(self):
         hover_height =  self.hover['height'] + self.hover['z']*0.1
@@ -118,7 +136,7 @@ class CrazyfliePublisher(Node):
         t_range = TransformStamped()
         q = tf_transformations.quaternion_from_euler(0, radians(90), 0)
         t_range.header.stamp = self.get_clock().now().to_msg()
-        t_range.header.frame_id = 'base_crazyflie'
+        t_range.header.frame_id = 'base_link'
         t_range.child_frame_id = 'crazyflie_flowdeck'
         t_range.transform.rotation.x = q[0]
         t_range.transform.rotation.y = q[1]
@@ -133,28 +151,25 @@ class CrazyfliePublisher(Node):
         msg.field_of_view = radians(4.7)
         msg.radiation_type = Range().INFRARED
         msg.min_range = 0.01
-        msg.max_range = 4.00
+        msg.max_range = 3.5
         msg.range = zrange
-        self.range_publisher.publish(msg)
+        ##self.range_publisher.publish(msg)
 
+        max_range = 3.49
         front_range = float(data.get('range.front'))/1000.0
         left_range = float(data.get('range.left'))/1000.0
         back_range = float(data.get('range.back'))/1000.0
         right_range = float(data.get('range.right'))/1000.0
+        if front_range > max_range:
+            front_range = float("inf")
+        if left_range > max_range:
+            left_range = float("inf")
+        if right_range > max_range:
+            right_range = float("inf")
+        if back_range > max_range:
+            back_range = float("inf")  
+        self.ranges = [back_range, left_range, front_range, right_range, back_range]
 
-        msg = LaserScan()
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_crazyflie'
-        msg.range_min = 0.01
-        msg.range_max = 4.00
-        msg.ranges = [front_range, left_range, back_range, right_range]
-        #msg.ranges[1] = left_range
-        #msg.ranges[2] = back_range
-        #msg.ranges[3] = right_range
-        msg.angle_min = 0.0
-        msg.angle_max = 2*math.pi
-        msg.angle_increment = math.pi/2
-        self.laser_publisher.publish(msg)
 
     def cmd_vel_callback(self, twist):
         self.target_twist = twist
@@ -162,7 +177,7 @@ class CrazyfliePublisher(Node):
         self.hover['x'] = twist.linear.x
         self.hover['y'] = twist.linear.y
         self.hover['z'] = twist.linear.z
-        self.hover['yaw'] =  math.degrees(twist.angular.z)
+        self.hover['yaw'] = -1* math.degrees(twist.angular.z)
         
 
 
@@ -229,7 +244,7 @@ class CrazyfliePublisher(Node):
         q_cf = tf_transformations.quaternion_from_euler(roll, pitch, 0)
         t_cf.header.stamp = self.get_clock().now().to_msg()
         t_cf.header.frame_id = 'base_footprint'
-        t_cf.child_frame_id = 'base_crazyflie'
+        t_cf.child_frame_id = 'base_link'
         t_cf.transform.translation.x = 0.0
         t_cf.transform.translation.y = 0.0
         t_cf.transform.translation.z = z
