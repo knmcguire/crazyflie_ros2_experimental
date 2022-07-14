@@ -1,0 +1,5 @@
+float32 scan_angle
+---
+float32[] laser_scan
+---
+float32 current_angle
