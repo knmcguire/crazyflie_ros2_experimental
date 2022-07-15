@@ -9,9 +9,13 @@ This is very much in progress but I'm excited to work on this and very confident
 
 See this [Blogpost](https://www.bitcraze.io/2022/07/crazyflie-summer-project-with-ros2-and-mapping/) explaining the bulk of the current process.
 
+## Content
+- [Goal Project](#goal-project)
+- [Current Status](#current-status)
+- [How to run](#how-to-run)
+- [Planning](#planning)
 
-
-## Goal
+## Goal Project
 
 Pretty much this:
 
@@ -39,7 +43,7 @@ Currently the simple_mapper node works on a real crazyflie what is controllable 
 
 #### Single room with corridor
 
-As you can see this is quite difficult to achieve! That is why we need to get working on SLAM
+As you can see this is quite difficult to achieve! That is why we need to get the slamtoolbox tuned and ready.
 
 [![video](nav2_with_simplemapper_room2.png)](https://youtu.be/eBp1VwLaxt0)
 
@@ -47,12 +51,17 @@ As you can see this is quite difficult to achieve! That is why we need to get wo
 _Video coming soon_
 
 
-## Explanation per package
+### Explanation per package
 - crazyflie_ros2: The Crazyflie package that has contact with the Crazyflie directly and publishes the transforms
 - crazyflie_ros2_description: The package that handles the RVIZ screen and also includes meshes if necessary
 - crazyflie_ros2_simulation: A webots simulator world and ROS node controller (based on the experimental [bitcraze simulation repo](https://github.com/bitcraze/crazyflie-simulation))
 - crazyflie_ros2_slam: Using an existing SLAM toolbox to create a map
 - crazyflie_ros2_simple_mapper: An own made simple mapper functionality for multirangers and flowdeckbased odometry
+- crazyflie_ros2_navigation: Using the NAV2 bringup package with changed parameters
+- crazyflie_ros2_scan: Node that turns multiranger into 360 scan (not finished, check issues)
+- crazyflie_ros2_interfaces: Containing actions or messages specific to crazyflie ros2
+
+
 - ... more to come (check [planning](#planning))
 
 
@@ -82,13 +91,21 @@ You can control both the simulated and real crazyflie with twist messages:
 ### Real Crazyflie
 You will need an [STEM ranging bundle](https://store.bitcraze.io/collections/bundles/products/stem-ranging-bundle) for this.
 
-Both these nodes will make the Crazyflie take off right away
-#### Real Crazyflie with simple mapper
+All these nodes will make the Crazyflie take off right away to height of 0.5 meters
+
+
+#### Simple mapper
 
     ros2 launch crazyflie_ros2_simple_mapper simple_mapper_real_launch.py 
-#### Real Crazyflie with SlamToolbox
+#### SlamToolbox
+Not working ideally yet!
 
     ros2 launch crazyflie_ros2_slam slam_toolbox_real_launch.py 
+
+#### NAV2
+For now only with simple mapper
+
+    ros2 launch crazyflie_ros2_navigation navigation_real_launch.py 
 
 ### Simulated Crazyflie
 
@@ -100,12 +117,19 @@ This crazyflie webots controller uses the python bindings of the crazyflie firmw
     sys.path.append('/home/knmcguire/Development/bitcraze/c/crazyflie-firmware')
     import cffirmware
     
-#### Simulated Crazyflie with simple mapper
+#### Simple mapper
 
     ros2 launch crazyflie_ros2_simple_mapper simple_mapper_simulation_launch.py 
 
-#### Simulated Crazyflie with SlamToolbox
+#### SlamToolbox
+Not working ideally yet!
+
     ros2 launch crazyflie_ros2_slam slam_toolbox_simulation_launch.py 
+
+#### NAV2
+For now only with simple mapper
+
+    ros2 launch crazyflie_ros2_navigation navigation_simulation_launch.py 
 
 
 ## Planning
@@ -122,7 +146,7 @@ This crazyflie webots controller uses the python bindings of the crazyflie firmw
 - ~~If tunable, try out on real crazyflie + multiranger~~ -> doesn't work as I hoped.
 - Make node that makes a 360 scan message of a rotating crazyflie
 - Connect 360 scan with slamtoolbox and see if it improves things
-- Try NAV2 on simple mapper node
+- ~~Try NAV2 on simple mapper node~~
 - Make 3d mapping vizualization 
 - Implement wall following?
 - If available, use python bindings of the Crazyflie's onboard EKF 
@@ -132,7 +156,7 @@ This crazyflie webots controller uses the python bindings of the crazyflie firmw
 - ~~crazyflie_ros needs to publish odometry messages properly~~
 - replace manual crazyflie robot after webot's release to 2022b
 - Action can not handle multiple threads so topic handling is not great. Should fix with this: https://answers.ros.org/question/356434/ros-2-actionserver-callback-causes-subscriber-to-stop-receiving/
-- Simulation underestimates position crazyflie
+- Simulation underestimates position crazyflie which results in a weird map building in simple mapper (didn't had this 2 weeks ago??)
 
 
 

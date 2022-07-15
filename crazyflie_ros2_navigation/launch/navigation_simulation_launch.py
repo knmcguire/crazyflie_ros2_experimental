@@ -53,6 +53,6 @@ def generate_launch_description():
 
     ld.add_action(bringup_cmd)
     ld.add_action(simulation_node)
-    #ld.add_action(rviz_cmd)
+    ld.add_action(rviz_cmd)
 
     return ld
