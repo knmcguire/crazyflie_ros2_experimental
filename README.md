@@ -27,12 +27,24 @@ For now this project is on my personal github repo for now and once there is som
 
 Currently the simple_mapper node works on a real crazyflie what is controllable through twist messages.
 
+### Simple mapper on Crazyflie
+[![video](video_screenshot.png)](https://youtu.be/_naBMmCv868)  
+
+
+
+### NAV2 with Simple Mapper 
+#### Single room with added obstacle
+
+[![video](nav2_with_simplemapper_room.png)](https://youtu.be/PyKgbL--aTE)
+
+#### Single room with corridor
+
+As you can see this is quite difficult to achieve! That is why we need to get working on SLAM
+
+[![video](nav2_with_simplemapper_room2.png)](https://youtu.be/eBp1VwLaxt0)
+
 ### SLAM toolbox on Crazyflie
 _Video coming soon_
-
-### Simple mapper on Crazyflie
-Check this video
-[![video](video_screenshot.png)](https://youtu.be/_naBMmCv868)  
 
 
 ## Explanation per package
@@ -120,6 +132,7 @@ This crazyflie webots controller uses the python bindings of the crazyflie firmw
 - ~~crazyflie_ros needs to publish odometry messages properly~~
 - replace manual crazyflie robot after webot's release to 2022b
 - Action can not handle multiple threads so topic handling is not great. Should fix with this: https://answers.ros.org/question/356434/ros-2-actionserver-callback-causes-subscriber-to-stop-receiving/
+- Simulation underestimates position crazyflie
 
 
 
