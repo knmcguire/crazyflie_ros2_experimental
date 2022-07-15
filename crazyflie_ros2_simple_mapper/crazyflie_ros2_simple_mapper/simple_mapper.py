@@ -31,7 +31,7 @@ class SimpleMapper(Node):
         self.position =  [0.0, 0.0, 0.0]
         self.angles =  [0.0, 0.0, 0.0]
         self.ranges = [0.0, 0.0, 0.0, 0.0]
-        self.range_max = 4.0
+        self.range_max = 3.5
 
         self.tfbr = StaticTransformBroadcaster(self)
         t_map = TransformStamped()

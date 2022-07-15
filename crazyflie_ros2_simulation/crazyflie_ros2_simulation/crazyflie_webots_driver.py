@@ -150,7 +150,7 @@ class CrazyflieWebotsDriver:
             #print(ranges)'''
 
 
-        q_base = tf_transformations.quaternion_from_euler(0, 0, -1*yaw)
+        q_base = tf_transformations.quaternion_from_euler(0, 0, yaw)
         odom = Odometry()
         odom.header.stamp = Time(seconds=self.robot.getTime()).to_msg()
         odom.header.frame_id = 'odom'
