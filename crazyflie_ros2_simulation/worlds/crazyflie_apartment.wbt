@@ -502,16 +502,16 @@ Robot {
   selfCollision FALSE
   synchronization TRUE
   children [
-    Lidar {
-    horizontalResolution 5
-    fieldOfView 6.28318
-    numberOfLayers 1
-    near 0.07
-    minRange 0.12
-    maxRange 3.5
-      name "lidar"
-      spherical TRUE
-    }
+    #Lidar {
+    #horizontalResolution 5
+    #fieldOfView 6.28318
+    #numberOfLayers 1
+    #near 0.07
+    #minRange 0.12
+    #maxRange 3.5
+    #  name "lidar"
+    #  spherical TRUE
+    #}
     DEF Multiranger Transform {
       translation 0.0 0 0.02
       children [
@@ -520,7 +520,7 @@ Robot {
           name "range_right"
           lookupTable [
             0 0 0
-            2 3500 0
+            3.5 3500 0
           ]
         }
         DistanceSensor {
@@ -528,7 +528,7 @@ Robot {
           name "range_back"
           lookupTable [
             0 0 0
-            2 3500 0
+            3.5 3500 0
           ]
         }
         DistanceSensor {
@@ -536,14 +536,14 @@ Robot {
           name "range_left"
           lookupTable [
             0 0 0
-            2 3500 0
+          3.5 3500 0
           ]
         }
         DistanceSensor {
           name "range_front"
           lookupTable [
             0 0 0
-            2 3500 0
+            3.5 3500 0
           ]
         }
       ]

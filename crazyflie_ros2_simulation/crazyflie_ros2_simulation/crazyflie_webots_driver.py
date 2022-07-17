@@ -63,6 +63,11 @@ class CrazyflieWebotsDriver:
         self.past_z_global = 0
         self.past_time = self.robot.getTime()
 
+        self.first_pos = True
+        self.first_x_global = 0.0
+        self.first_y_global = 0.0
+
+
         cffirmware.controllerPidInit()
 
         rclpy.init(args=None)
@@ -112,6 +117,11 @@ class CrazyflieWebotsDriver:
 
         dt = self.robot.getTime() - self.past_time
 
+        if self.first_pos is True:
+            self.first_x_global = self.gps.getValues()[0]
+            self.first_y_global = self.gps.getValues()[1]
+            self.first_pos = False
+
         ## Get measurements
         roll = self.imu.getRollPitchYaw()[0]
         pitch = self.imu.getRollPitchYaw()[1]
@@ -119,9 +129,9 @@ class CrazyflieWebotsDriver:
         roll_rate = self.gyro.getValues()[0]
         pitch_rate = self.gyro.getValues()[1]
         yaw_rate = self.gyro.getValues()[2]
-        x_global = self.gps.getValues()[0] + 1.5
+        x_global = self.gps.getValues()[0]- self.first_x_global
         vx_global = (x_global - self.past_x_global)/dt
-        y_global = self.gps.getValues()[1] + 2.5
+        y_global = self.gps.getValues()[1] - self.first_y_global
         vy_global = (y_global - self.past_y_global)/dt
         z_global = self.gps.getValues()[2]
         vz_global = (z_global - self.past_z_global)/dt
@@ -159,12 +169,12 @@ class CrazyflieWebotsDriver:
         odom.pose.pose.position.y = y_global
         odom.pose.pose.position.z = 0.0
 
-        odom.pose.pose.orientation.x = q_base[0]
-        odom.pose.pose.orientation.y = q_base[1]
-        odom.pose.pose.orientation.z = q_base[2]
-        odom.pose.pose.orientation.w = q_base[3]
-        #odom.pose.pose.orientation.z = sin(yaw / 2)
-        #odom.pose.pose.orientation.w = cos(yaw / 2)
+        #odom.pose.pose.orientation.x = q_base[0]
+        #odom.pose.pose.orientation.y = q_base[1]
+        #odom.pose.pose.orientation.z = q_base[2]
+        #odom.pose.pose.orientation.w = q_base[3]
+        odom.pose.pose.orientation.z = sin(yaw / 2)
+        odom.pose.pose.orientation.w = cos(yaw / 2)
 
         self.odom_publisher.publish(odom)
 
