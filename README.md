@@ -47,9 +47,12 @@ As you can see this is quite difficult to achieve! That is why we need to get th
 
 [![video](nav2_with_simplemapper_room2.png)](https://youtu.be/eBp1VwLaxt0)
 
-### SLAM toolbox on Crazyflie
-_Video coming soon_
+### SLAM toolbox with NAV2 on simulated Crazyflie
 
+This a video of the slamtoolbox in simulation without ray fitting on, together with the nav toolbox. In order to get rayscanning to work we need more tuning.
+
+
+[![video](nav2_slamtoolbox_sim_noraymatching.png)](https://youtu.be/hh56yuWcshw)
 
 ### Explanation per package
 - crazyflie_ros2: The Crazyflie package that has contact with the Crazyflie directly and publishes the transforms
@@ -127,7 +130,7 @@ Not working ideally yet!
     ros2 launch crazyflie_ros2_slam slam_toolbox_simulation_launch.py 
 
 #### NAV2
-For now only with simple mapper
+With the slamtoolbox with use_scan_matching on False
 
     ros2 launch crazyflie_ros2_navigation navigation_simulation_launch.py 
 
@@ -157,6 +160,7 @@ For now only with simple mapper
 - replace manual crazyflie robot after webot's release to 2022b
 - Action can not handle multiple threads so topic handling is not great. Should fix with this: https://answers.ros.org/question/356434/ros-2-actionserver-callback-causes-subscriber-to-stop-receiving/
 - Simulation underestimates position crazyflie which results in a weird map building in simple mapper (didn't had this 2 weeks ago??)
+- THe yaw control on the webots driver is much slower than with the crazyflie driver.. eventhough it is the same code. 
 
 
 

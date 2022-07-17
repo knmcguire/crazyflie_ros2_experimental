@@ -79,7 +79,7 @@ class CrazyflieWebotsDriver:
         self.tfbr = TransformBroadcaster(self.node)
 
         self.msg_laser = LaserScan()
-        self.node.create_timer(1.0/6.0, self.publish_laserscan_data)
+        self.node.create_timer(1.0/30.0, self.publish_laserscan_data)
 
     def publish_laserscan_data(self):
 
@@ -211,7 +211,6 @@ class CrazyflieWebotsDriver:
         sensors.gyro.x = degrees(roll_rate)
         sensors.gyro.y = degrees(pitch_rate)
         sensors.gyro.z = degrees(yaw_rate)
-
         yawDesired=0
 
         ## Fill in Setpoints
@@ -219,14 +218,13 @@ class CrazyflieWebotsDriver:
         setpoint.mode.z = cffirmware.modeAbs
         setpoint.position.z = 1.0
         setpoint.mode.yaw = cffirmware.modeVelocity
-        setpoint.attitudeRate.yaw = degrees(self.target_twist.angular.z)
+        # TODO: find out why this multipication is necessary...
+        setpoint.attitudeRate.yaw = degrees(self.target_twist.angular.z)*5
         setpoint.mode.x = cffirmware.modeVelocity
         setpoint.mode.y = cffirmware.modeVelocity
         setpoint.velocity.x = self.target_twist.linear.x
         setpoint.velocity.y = self.target_twist.linear.y
         setpoint.velocity_body = True
-
-         
 
         ## Firmware PID bindings
         control = cffirmware.control_t()

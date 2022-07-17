@@ -41,11 +41,11 @@ def generate_launch_description():
 
 
 
-    pkg_share = get_package_share_directory('crazyflie_ros2_simple_mapper')
+    pkg_share = get_package_share_directory('crazyflie_ros2_slam')
 
     simulation_node = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                os.path.join(pkg_share, 'launch', 'simple_mapper_simulation_launch.py')
+                os.path.join(pkg_share, 'launch', 'slam_toolbox_mapping_simulation_launch.py')
             )
         )
 
