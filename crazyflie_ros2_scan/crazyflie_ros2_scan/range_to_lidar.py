@@ -9,7 +9,7 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 
-from math import pi, copysign
+from math import pi, copysign, degrees
 
 from crazyflie_ros2_interfaces.action import MultiRangerScan
 import tf_transformations
@@ -38,14 +38,17 @@ class RangeToLidar(Node):
     def __init__(self):
         super().__init__('range_to_lidar')
         self.odom_subscriber = self.create_subscription(Odometry, '/odom', self.odom_subcribe_callback, 10)
-        self.ranges_subscriber = self.create_subscription(LaserScan, '/scan', self.scan_subsribe_callback, 10)
+        self.ranges_subscriber = self.create_subscription(LaserScan, '/multiranger_scan', self.scan_subsribe_callback, 10)
         self.action_server = ActionServer(self, MultiRangerScan, 'multi_ranger_scan', self.execute_callback)
         self.cmd_publisher = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.lidar_scan_publisher = self.create_publisher(LaserScan, '/scan', 10)
 
         self.yaw = 0.0
         self.range = 0.0
         self.range_max = 0.0
-        self.rot_vel_max = 0.5
+        self.rot_vel_max = 0.5 * pi
+
+        self.lidar_scan = [float("inf")]*361
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
@@ -69,11 +72,31 @@ class RangeToLidar(Node):
             goal_handle.publish_feedback(feedback_msg)
             time.sleep(0.1)
 
+        while not is_close_to(self.yaw, start_yaw, 0.05):
+            msg_cmd.angular.z = -1.0 * copysign(self.rot_vel_max, goal_handle.request.scan_angle)
+            self.cmd_publisher.publish(msg_cmd)
+            feedback_msg.current_angle = self.yaw
+            goal_handle.publish_feedback(feedback_msg)
+            time.sleep(0.1)
+
+
+        msg = LaserScan()
+        msg.header.stamp = self.stamp
+        msg.header.frame_id = 'base_link'
+        msg.range_min = 0.01
+        msg.range_max = 3.5
+        msg.ranges = self.lidar_scan
+        msg.angle_min = 0.5 * 2*pi
+        msg.angle_max =  -0.5 * 2*pi
+        msg.angle_increment = -2.0 * pi / 360.0
+        self.lidar_scan_publisher.publish(msg)
+
         msg_cmd.angular.z = 0.0
         self.cmd_publisher.publish(msg_cmd)           
 
         result = MultiRangerScan.Result()
-        result.laser_scan = [0.0, 0.0]
+        result.laser_scan = self.lidar_scan
+        self.lidar_scan = [float("inf")]*361
 
         goal_handle.succeed()
         return result
@@ -86,6 +109,15 @@ class RangeToLidar(Node):
     def scan_subsribe_callback(self, msg):
         self.ranges = msg.ranges
         self.range_max = msg.range_max
+        self.stamp = msg.header.stamp
+        self.fill_lidar_scan()
+    
+    def fill_lidar_scan(self):
+        self.lidar_scan[int(degrees(wrap_to_pi(self.yaw + pi)))] = self.ranges[2]
+        self.lidar_scan[int(degrees(self.yaw))] = self.ranges[0]
+        self.lidar_scan[int(degrees(wrap_to_pi(self.yaw+ 0.5*pi)))] = self.ranges[1]
+        self.lidar_scan[int(degrees(wrap_to_pi(self.yaw+ 1.5*pi)))] = self.ranges[3]
+
 
 
 def main(args=None):
