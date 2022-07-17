@@ -9,10 +9,30 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 
+from math import pi, copysign
+
 from crazyflie_ros2_interfaces.action import MultiRangerScan
 import tf_transformations
 
+from rclpy.executors import MultiThreadedExecutor
+
 import time
+
+def is_close_to(current_value, goal_value, margin):
+    if current_value > (goal_value - margin) and current_value < (goal_value + margin):
+        return True
+    else:
+        return False
+
+def wrap_to_pi(angle):
+    if angle > pi:
+        return (angle - 2.0 * pi)
+    elif angle < -1.0 * pi:
+        return (angle + 2.0 * pi)
+    else:
+        return angle
+
+
 
 class RangeToLidar(Node):
     def __init__(self):
@@ -36,20 +56,20 @@ class RangeToLidar(Node):
         msg_cmd = Twist()
 
         # Check the yaw
-        self.get_logger().info(str(goal_handle.request.scan_angle - start_yaw))
+        self.get_logger().info(str(goal_handle.request.scan_angle - start_yaw ))
+        self.get_logger().info(str(self.yaw ))
 
-
-        while self.yaw < (goal_handle.request.scan_angle - start_yaw):
+        while not is_close_to(wrap_to_pi(self.yaw - start_yaw), goal_handle.request.scan_angle, 0.05):
             self.get_logger().info(str(self.yaw ))
             # Send the command to start turning
-            msg_cmd.angular.z = self.rot_vel_max
+            msg_cmd.angular.z = copysign(self.rot_vel_max, goal_handle.request.scan_angle)
             self.cmd_publisher.publish(msg_cmd)
 
             feedback_msg.current_angle = self.yaw
             goal_handle.publish_feedback(feedback_msg)
             time.sleep(0.1)
 
-        msg_cmd.angular.z = 0
+        msg_cmd.angular.z = 0.0
         self.cmd_publisher.publish(msg_cmd)           
 
         result = MultiRangerScan.Result()
@@ -61,19 +81,29 @@ class RangeToLidar(Node):
     def odom_subcribe_callback(self, msg):
         q = msg.pose.pose.orientation
         self.yaw = tf_transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
-        self.get_logger().info('callback' + str(self.yaw ))
+        #self.get_logger().info('callback' + str(self.yaw ))
 
     def scan_subsribe_callback(self, msg):
         self.ranges = msg.ranges
         self.range_max = msg.range_max
 
+
 def main(args=None):
 
     rclpy.init(args=args)
-    range_to_lidar = RangeToLidar()
-    rclpy.spin(range_to_lidar)
-    rclpy.destroy_node()
-    rclpy.shutdown()
+
+    try: 
+        range_to_lidar = RangeToLidar()
+        executor = MultiThreadedExecutor(num_threads=3)
+        executor.add_node(range_to_lidar)
+        try:
+            executor.spin()
+        finally:
+            executor.shutdown()
+            range_to_lidar.destroy_node()
+    finally:
+        rclpy.shutdown()
+
 
 
 if __name__ == '__main__':
