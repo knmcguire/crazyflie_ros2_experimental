@@ -23,9 +23,10 @@ import math
 from math import pi
 
 URI = uri_helper.uri_from_env(default='radio://0/40/2M/E7E7E7E703')
-
+FLYING = True
 def radians(degrees):  
-    return degrees * math.pi / 180.0;
+    return degrees * math.pi / 180.0
+
 
 class CrazyfliePublisher(Node):
 
@@ -47,15 +48,20 @@ class CrazyfliePublisher(Node):
         self._cf.connection_lost.add_callback(self._connection_lost)
         self._cf.open_link(link_uri)
 
-        timer_period = 0.1  # seconds
-        self.create_timer(timer_period, self.sendHoverCommand)
-        self.ranges= [0.0, 0.0, 0.0, 0.0, 0.0]
-        self.create_timer(1.0/6.0, self.publish_laserscan_data)
 
-        self.hover = {'x': 0.0, 'y': 0.0, 'z': 0.0, 'yaw': 0.0, 'height': 0.3}
-        self._cf.commander.send_hover_setpoint(
-            self.hover['x'], self.hover['y'], self.hover['yaw'],
-            self.hover['height'])
+        self.ranges= [0.0, 0.0, 0.0, 0.0, 0.0]
+        self.create_timer(1.0/30.0, self.publish_laserscan_data)
+        if FLYING:
+            timer_period = 0.1  # seconds
+            self.create_timer(timer_period, self.sendHoverCommand)
+
+
+            self.hover = {'x': 0.0, 'y': 0.0, 'z': 0.0, 'yaw': 0.0, 'height': 0.3}
+
+
+            self._cf.commander.send_hover_setpoint(
+                self.hover['x'], self.hover['y'], self.hover['yaw'],
+                self.hover['height'])
 
     def publish_laserscan_data(self):
 
@@ -63,7 +69,7 @@ class CrazyfliePublisher(Node):
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = 'base_link'
         msg.range_min = 0.01
-        msg.range_max = 3.5
+        msg.range_max = 3.49
         msg.ranges = self.ranges
         msg.angle_min = 0.5 * 2*pi
         msg.angle_max =  -0.5 * 2*pi
