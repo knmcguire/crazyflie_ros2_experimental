@@ -3,6 +3,8 @@
 
 ![header](header.png)
 
+> **_NOTE:_**  This project has come to an end! Currently efforts are in place to translate some of these nodes or the principle of them to the [crazyswarm2 project](https://github.com/IMRCLab/crazyswarm2), which will be eventually be published to be the official Crazyflie2 ROS package. 
+
 This is my Bitcraze Summer project of 2022! Purpose: To use ROS2 to implement SLAM and navigation with the [Crazyflie](https://www.bitcraze.io/products/crazyflie-2-1/), [Flow deck](https://www.bitcraze.io/products/flow-deck-v2/) and [Multiranger](https://www.bitcraze.io/products/multi-ranger-deck/), on both the real drone and simulation. 
 
 This is very much in progress but I'm excited to work on this and very confident that this will work at the end. Also this is a good opertunity for me to show an ROS2 implementation of a new platform from scratch, so why not start with the Crazyflie :)
