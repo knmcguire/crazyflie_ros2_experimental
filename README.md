@@ -28,6 +28,8 @@ of the current process.
 - [Current Status](#current-status)
 - [How to run](#how-to-run)
 - [Planning](#planning)
+- [Installation and dependencies](#installation-and-dependencies)
+- [Develop](#develop)
 
 ## Goal Project
 
@@ -276,3 +278,7 @@ LIBGL_ALWAYS_SOFTWARE=true
 ```
 ros2 launch slam_toolbox online_async_launch.py
 ```
+
+## Develop
+
+Take a look at the [develop documentation](docs/develop.md) about the tool helping with formatting and code style recommendations.
