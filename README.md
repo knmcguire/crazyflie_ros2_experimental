@@ -28,7 +28,6 @@ of the current process.
 - [Current Status](#current-status)
 - [How to run](#how-to-run)
 - [Planning](#planning)
-- [Installation and dependencies](#installation-and-dependencies)
 - [Develop](#develop)
 
 ## Goal Project
@@ -89,55 +88,22 @@ rayscanning to work we need more tuning.
 - crazyflie_ros2_interfaces: Containing actions or messages specific to crazyflie ros2
 - ... more to come (check [planning](#planning))
 
-## Installation and dependencies
-
-Let's install all dependencies and get ready to clone and build the ROS package.
-
-### ROS dependencies
-
-Dependencies are listed as runtime dependencies, so you can still build the package without them, but it better to have
-them installed on the system before running.
-
-- `slam-toolbox`
-- `tf-transformations`
-- `xacro`
-- `nav2-bringup`
-- `webots-ros2-driver`
-
-### Python dependencies
-
-The package heavily rely on Python, so following packages are required:
-
-- `cflib`
-- `transforms3d`
-- `bresenham`
-
-### Install dependencies
-
-ROS packages:
-
-```
-sudo apt-get install -y ros-galactic-slam-toolbox \
-  ros-galactic-tf-transformations \
-  ros-galactic-xacro \
-  ros-galactic-nav2-bringup \
-  ros-galactic-webots-ros2-driver
-```
-
-Python modules:
-
-```
-pip install cflib transforms3d bresenham
-```
-
 ## How to run
 
 ROS 2 version: `Galactic`
 
-First go to your development workspace and run:
+First install all dependencies by entering the repository root and run:
 
-    source /opt/ros/galactic/local_setup.bash
-    colcon build
+*Before running the `make` command, please make sure, you have ROS 2 sourced with `source /opt/ros/galactic/local_setup.bash`*
+
+```
+make all
+```
+
+Wait until everything is build and setup for you. And this point you are ready to proceed futher.
+
+Then, go to your development workspace and run:
+
     source install/setup.bash
 
 Before running the package following tasks have to be done:
