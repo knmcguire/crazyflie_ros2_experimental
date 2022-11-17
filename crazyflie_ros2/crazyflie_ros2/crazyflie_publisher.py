@@ -19,6 +19,12 @@ FLYING = True
 
 
 def radians(degrees: float) -> float:
+    """
+    Convert degrees into radians
+
+    :param degrees: Degrees
+    :return: Radians
+    """
     return degrees * math.pi / 180.0
 
 

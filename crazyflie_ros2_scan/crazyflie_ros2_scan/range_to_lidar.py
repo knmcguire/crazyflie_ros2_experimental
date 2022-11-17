@@ -15,6 +15,15 @@ from crazyflie_ros2_interfaces.action import MultiRangerScan
 
 
 def is_close_to(current_value: float, goal_value: float, margin: float) -> bool:
+    """
+    Find a distance from the current value and goal
+    value with the given margin
+
+    :param current_value: Current value
+    :param goal_value: Goal value
+    :param margin: Margin
+    :return: If it is close or not
+    """
     if (goal_value - margin) < current_value < (goal_value + margin):
         return True
     else:
@@ -22,6 +31,12 @@ def is_close_to(current_value: float, goal_value: float, margin: float) -> bool:
 
 
 def wrap_to_pi(angle: float) -> float:
+    """
+    Get absolute angle value
+
+    :param angle: Any angle
+    :return: Rounded angle
+    """
     if angle > pi:
         return angle - 2.0 * pi
     elif angle < -1.0 * pi:
