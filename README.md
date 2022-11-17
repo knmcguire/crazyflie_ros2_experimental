@@ -100,6 +100,7 @@ them installed on the system before running.
 - `tf-transformations`
 - `xacro`
 - `nav2-bringup`
+- `webots-ros2-driver`
 
 ### Python dependencies
 
@@ -114,7 +115,11 @@ The package heavily rely on Python, so following packages are required:
 ROS packages:
 
 ```
-sudo apt-get install -y ros-galactic-slam-toolbox ros-galactic-tf-transformations ros-galactic-xacro ros-galactic-nav2-bringup
+sudo apt-get install -y ros-galactic-slam-toolbox \
+  ros-galactic-tf-transformations \
+  ros-galactic-xacro \
+  ros-galactic-nav2-bringup \
+  ros-galactic-webots-ros2-driver
 ```
 
 Python modules:
@@ -160,19 +165,19 @@ All these nodes will make the Crazyflie take off right away to height of 0.5 met
 
 #### Simple mapper
 
-    ros2 launch crazyflie_ros2_simple_mapper simple_mapper_real_launch.py 
+    ros2 launch crazyflie_ros2_simple_mapper simple_mapper_real_launch.py
 
 #### SlamToolbox
 
 Not working ideally yet!
 
-    ros2 launch crazyflie_ros2_slam slam_toolbox_real_launch.py 
+    ros2 launch crazyflie_ros2_slam slam_toolbox_real_launch.py
 
 #### NAV2
 
 For now only with simple mapper
 
-    ros2 launch crazyflie_ros2_navigation navigation_real_launch.py 
+    ros2 launch crazyflie_ros2_navigation navigation_real_launch.py
 
 ### Simulated Crazyflie
 
@@ -187,19 +192,19 @@ your [crazyflie-firmware](https://github.com/bitcraze/crazyflie-firmware) repo a
 
 #### Simple mapper
 
-    ros2 launch crazyflie_ros2_simple_mapper simple_mapper_simulation_launch.py 
+    ros2 launch crazyflie_ros2_simple_mapper simple_mapper_simulation_launch.py
 
 #### SlamToolbox
 
 Not working ideally yet!
 
-    ros2 launch crazyflie_ros2_slam slam_toolbox_simulation_launch.py 
+    ros2 launch crazyflie_ros2_slam slam_toolbox_simulation_launch.py
 
 #### NAV2
 
 With the SLAM toolbox with use_scan_matching on False
 
-    ros2 launch crazyflie_ros2_navigation navigation_simulation_launch.py 
+    ros2 launch crazyflie_ros2_navigation navigation_simulation_launch.py
 
 ## Planning
 
@@ -250,7 +255,7 @@ rosdep update
 ```
 
 ```
-rosdep install --from-paths src --ignore-src -r -y 
+rosdep install --from-paths src --ignore-src -r -y
 ```
 
 WSL use
@@ -269,5 +274,5 @@ LIBGL_ALWAYS_SOFTWARE=true
 ```
 
 ```
-ros2 launch slam_toolbox online_async_launch.py 
+ros2 launch slam_toolbox online_async_launch.py
 ```
