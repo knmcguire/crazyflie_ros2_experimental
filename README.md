@@ -100,6 +100,8 @@ First install all dependencies by entering the repository root and run:
 make all
 ```
 
+[Here](docs/targets.md) you can read more about other Makefile targets.
+
 Wait until everything is build and setup for you. And this point you are ready to proceed futher.
 
 Then, go to your development workspace and run:
