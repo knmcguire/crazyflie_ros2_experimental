@@ -2,7 +2,7 @@ clean:
 	rm -rf ../../build ../../install ../../log
 	@echo "Workspace cleaned"
 
-package:
+workspace:
 	cd ../../; colcon build
 	@echo "Workspace built"
 
@@ -29,4 +29,4 @@ dependencies:
 		ros-galactic-webots-ros2-driver
 	@echo "ROS 2 dependencies packages installed"
 
-all: clean python dependencies package
+all: clean python dependencies workspace
