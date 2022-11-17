@@ -3,8 +3,7 @@ clean:
 	@echo "Workspace cleaned"
 
 package:
-	cd ..
-	colcon build
+	cd ..; colcon build
 	@echo "Workspace built"
 
 .PHONY devel:
@@ -28,8 +27,6 @@ dependencies:
 		ros-galactic-xacro \
 		ros-galactic-nav2-bringup \
 		ros-galactic-webots-ros2-driver
+	@echo "ROS 2 dependencies packages installed"
 
-all: clean python dependencies package install
-
-install:
-	source ../../install/setup.bash
+all: clean python dependencies package
