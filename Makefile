@@ -3,7 +3,7 @@ clean:
 	@echo "Workspace cleaned"
 
 package:
-	cd ..; colcon build
+	cd ../../; colcon build
 	@echo "Workspace built"
 
 .PHONY devel:
