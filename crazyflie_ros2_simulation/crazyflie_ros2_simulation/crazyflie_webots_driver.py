@@ -83,27 +83,30 @@ class CrazyflieWebotsDriver:
 
     def publish_laserscan_data(self):
 
-        front_range = self.range_front.getValue()/1000.0
+        front_range = float(self.range_front.getValue()/1000.0)
 
-        back_range = self.range_back.getValue()/1000.0
-        left_range = self.range_left.getValue()/1000.0
-        right_range = self.range_right.getValue()/1000.0
+        back_range = float(self.range_back.getValue()/1000.0)
+        left_range = float(self.range_left.getValue()/1000.0)
+        right_range = float(self.range_right.getValue()/1000.0)
         max_range = 3.49
         if front_range > max_range:
-            front_range = float("inf")
+            front_range = 0.0
         if left_range > max_range:
-            left_range = float("inf")
+            left_range = 0.0
         if right_range > max_range:
-            right_range = float("inf")
+            right_range = 0.0
         if back_range > max_range:
-            back_range = float("inf")  
+            back_range = 0.0
 
         self.msg_laser = LaserScan()
         self.msg_laser.header.stamp = Time(seconds=self.robot.getTime()).to_msg()
         self.msg_laser.header.frame_id = 'base_link'
         self.msg_laser.range_min = 0.1
         self.msg_laser.range_max = max_range
+        #print('print',back_range, left_range, front_range, right_range, back_range)
         self.msg_laser.ranges = [back_range, left_range, front_range, right_range, back_range]
+        #self.msg_laser.ranges = [max_range, max_range, max_range, max_range, max_range]
+
         self.msg_laser.angle_min = 0.5 * 2*pi
         self.msg_laser.angle_max =  -0.5 * 2*pi
         self.msg_laser.angle_increment = -1.0*pi/2

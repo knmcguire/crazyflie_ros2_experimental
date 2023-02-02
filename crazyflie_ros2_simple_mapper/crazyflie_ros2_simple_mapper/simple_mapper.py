@@ -103,19 +103,19 @@ class SimpleMapper(Node):
         r_front = self.ranges[2]
         r_right = self.ranges[3]
 
-        if (r_left < self.range_max):
+        if (r_left < self.range_max and r_left != 0.0):
             left = [o[0], o[1] + r_left, o[2]]
             data.append(self.rot(roll, pitch, yaw, o, left))
 
-        if (r_right < self.range_max):
+        if (r_right < self.range_max and r_right != 0.0):
             right = [o[0], o[1] - r_right, o[2]]
             data.append(self.rot(roll, pitch, yaw, o, right))
 
-        if (r_front < self.range_max):
+        if (r_front < self.range_max and r_front != 0.0):
             front = [o[0] + r_front, o[1], o[2]]
             data.append(self.rot(roll, pitch, yaw, o, front))
 
-        if (r_back < self.range_max):
+        if (r_back < self.range_max and r_back != 0.0):
             back = [o[0] - r_back, o[1], o[2]]
             data.append(self.rot(roll, pitch, yaw, o, back))
 
