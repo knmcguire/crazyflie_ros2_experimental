@@ -72,7 +72,8 @@ This a video of the slamtoolbox in simulation without ray fitting on, together w
 
 ## How to run
 
-ROS2 version: Galactic
+ROS2 version: Humble
+Webots version: 2023a
 
 First go to your development workspace and run:
 
